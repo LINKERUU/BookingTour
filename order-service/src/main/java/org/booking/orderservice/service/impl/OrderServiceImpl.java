@@ -1,0 +1,78 @@
+package org.booking.orderservice.service.impl;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.booking.orderservice.dto.OrderPatchRequest;
+import org.booking.orderservice.dto.OrderRequest;
+import org.booking.orderservice.dto.OrderResponse;
+import org.booking.orderservice.exception.custom.OrderNotFoundException;
+import org.booking.orderservice.mapper.OrderMapper;
+import org.booking.orderservice.model.Order;
+import org.booking.orderservice.repository.OrderRepository;
+import org.booking.orderservice.service.OrderService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class OrderServiceImpl implements OrderService {
+
+    private final OrderRepository orderRepository;
+    private final OrderMapper orderMapper;
+
+    @Override
+    @Transactional
+    public OrderResponse createOrder(OrderRequest request){
+        Order order = orderMapper.toOrder(request);
+
+        orderRepository.save(order);
+
+        log.info("Order created with ID: {}", order.getId());
+
+        return orderMapper.toResponse(order);
+    }
+
+    @Override
+    public OrderResponse getOrderById(String id) {
+        log.info("Get order by ID: {}", id);
+
+        return orderMapper.toResponse(getExistingOrder(id));
+    }
+
+    @Override
+    @Transactional
+    public OrderResponse updateOrder(String id, OrderPatchRequest request) {
+
+        Order order = getExistingOrder(id);
+
+        applyUpdate(order,request);
+
+        log.info("Order updated with ID: {}", id);
+
+        return orderMapper.toResponse(order);
+    }
+
+    @Override
+    public void deleteOrder(String id) {
+
+        getExistingOrder(id);
+
+        log.info("Delete order by ID: {}", id);
+
+        orderRepository.deleteById(id);
+    }
+
+    private Order getExistingOrder(String id) {
+        return orderRepository.findById(id).orElseThrow(()-> new OrderNotFoundException(id));
+    }
+
+    private void applyUpdate(Order order, OrderPatchRequest request) {
+        Optional.ofNullable(request.userId()).ifPresent(order::changeUserId);
+        Optional.ofNullable(request.flightId()).ifPresent(order::changeFlightId);
+        Optional.ofNullable(request.hotelId()).ifPresent(order::changeHotelId);
+    }
+}
