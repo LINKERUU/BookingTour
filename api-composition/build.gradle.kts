@@ -1,6 +1,6 @@
 plugins {
     id("org.springframework.boot")
-    id('java')
+    java
 }
 
 dependencies {
