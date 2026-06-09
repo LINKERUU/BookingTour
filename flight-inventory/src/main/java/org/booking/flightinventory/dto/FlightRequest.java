@@ -22,7 +22,7 @@ public record FlightRequest(
 
         @NotNull(message = "Available seats count is required")
         @PositiveOrZero(message = "Available seats must be positive or zero")
-        int availableSeats,
+        Integer availableSeats,
 
         @NotNull(message = "Price cannot be null")
         @Positive(message = "Price must be positive")
