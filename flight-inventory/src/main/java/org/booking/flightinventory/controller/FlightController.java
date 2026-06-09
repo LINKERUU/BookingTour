@@ -50,12 +50,6 @@ public class FlightController {
     @ResponseStatus(HttpStatus.OK)
     public List<FlightResponse> searchFlightByArrivalAndDeparture(@RequestParam String arrival, @RequestParam String departure)
     {
-        log.info("Получен запрос на поиск. arrival: '{}', departure: '{}'", arrival, departure);
-
-        if (arrival == null || departure == null) {
-            log.warn("Один из параметров пришел как NULL!");
-            return List.of(); // возвращаем пустой список вместо падения
-        }
         return flightService.searchFlights(arrival,departure);
     }
 
