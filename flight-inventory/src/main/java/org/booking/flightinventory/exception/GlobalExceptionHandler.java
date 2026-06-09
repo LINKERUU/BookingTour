@@ -1,12 +1,12 @@
-package org.booking.orderservice.exception;
+package org.booking.flightinventory.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.booking.orderservice.exception.custom.OrderNotFoundException;
-import org.booking.orderservice.exception.custom.ServiceUnavailableException;
-import org.booking.orderservice.exception.dto.ErrorCode;
-import org.booking.orderservice.exception.dto.ErrorResponse;
-import org.booking.orderservice.exception.dto.ValidationErrorResponse;
+import org.booking.flightinventory.exception.custom.FlightNotFoundException;
+import org.booking.flightinventory.exception.custom.ServiceUnavailableException;
+import org.booking.flightinventory.exception.dto.ErrorCode;
+import org.booking.flightinventory.exception.dto.ErrorResponse;
+import org.booking.flightinventory.exception.dto.ValidationErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,14 +21,13 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-
-    @ExceptionHandler(OrderNotFoundException.class)
+    @ExceptionHandler(FlightNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleOrderNotFoundException(
-            OrderNotFoundException ex,
+    public ErrorResponse handleFlightNotFoundException(
+            FlightNotFoundException ex,
             HttpServletRequest request
     ) {
-        log.warn("Order not found: {}", ex.getMessage());
+        log.warn("Flight not found: {}", ex.getMessage());
 
         return new ErrorResponse(
                 ex.getErrorCode(),
@@ -81,3 +80,4 @@ public class GlobalExceptionHandler {
 
     }
 }
+
