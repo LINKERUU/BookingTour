@@ -5,8 +5,13 @@ plugins {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
-    implementation("org.springframework.amqp:spring-rabbit")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("io.micrometer:micrometer-tracing-bridge-otel")
+    implementation("org.springframework.cloud:spring-cloud-starter-gateway-server-webmvc")
+
+}
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2025.1.0")
+    }
 }

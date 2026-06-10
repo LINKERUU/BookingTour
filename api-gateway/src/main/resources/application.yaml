@@ -1,22 +1,32 @@
 server:
-  port: 8081
-
+  port: 8080
 spring:
+  threads:
+    virtual:
+      enabled: true
   application:
     name: api-gateway
-#  data:
-#    mongodb:
-#      uri: mongodb://localhost:27017/order_db
-#  rabbitmq:
-#    host: localhost
-#    port: 5672
-#    username: guest
-#    password: guest
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: flight-inventory-route
+              uri: http://localhost:8083
+              predicates:
+                - Path=/api/flights,/api/flights/**
 
-#management:
-#  tracing:
-#    sampling:
-#      probability: 1.0
-#  zipkin:
-#    tracing:
-#      endpoint: http://localhost:9411/api/v2/spans
+            - id: hotel-inventory-route
+              uri: http://localhost:8084
+              predicates:
+                - Path=/api/hotels,/api/hotels/**
+
+            - id: payment-order-route
+              uri: http://localhost:8085
+              predicates:
+                - Path=/api/orders,/api/orders/**
+
+            - id: payment-service-route
+              uri: http://localhost:8086
+              predicates:
+                - Path=/api/payments,/api/payments/**
