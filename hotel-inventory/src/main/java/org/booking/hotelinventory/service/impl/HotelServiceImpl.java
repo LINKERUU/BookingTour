@@ -41,6 +41,8 @@ public class HotelServiceImpl implements HotelService {
         Hotel hotel = getExistingHotel(id);
         applyUpdate(hotel, request);
 
+        hotelRepository.save(hotel);
+
         log.info("Hotel updated with ID: {}", id);
 
         return hotelMapper.toResponse(hotel);

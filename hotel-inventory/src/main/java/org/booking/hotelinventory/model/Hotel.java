@@ -44,4 +44,11 @@ public class Hotel {
         this.pricePerNight = pricePerNight;
     }
 
+    public void reserveRoom() {
+        this.availableRooms--;
+    }
+
+    public void releaseRoom() {
+        this.availableRooms++;
+    }
 }
