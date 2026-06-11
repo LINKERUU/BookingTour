@@ -44,7 +44,8 @@ public class Payment {
         this.amount = amount;
     }
 
-    public void updateStatus(PaymentStatus paymentStatus) {
+    public void changeStatus(PaymentStatus paymentStatus) {
         this.status = paymentStatus;
     }
+
 }
