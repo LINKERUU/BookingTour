@@ -2,6 +2,7 @@ package org.booking.orderservice.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.booking.orderservice.exception.custom.NoAvailableRoomsException;
 import org.booking.orderservice.exception.custom.OrderNotFoundException;
 import org.booking.orderservice.exception.custom.ServiceUnavailableException;
 import org.booking.orderservice.exception.dto.ErrorCode;
@@ -39,6 +40,23 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(NoAvailableRoomsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleNoAvailableSeatsException(
+            NoAvailableRoomsException ex,
+            HttpServletRequest request
+    ) {
+        log.warn("Booking failed - No available rooms: {}", ex.getMessage());
+
+        return new ErrorResponse(
+                ex.getErrorCode(),
+                ex.getMessage(),
+                HttpStatus.CONFLICT.value(),
+                request.getRequestURI(),
+                LocalDateTime.now()
+        );
+    }
+
     @ExceptionHandler(ServiceUnavailableException.class)
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     public ErrorResponse handleServiceUnavailableException(
@@ -66,9 +84,7 @@ public class GlobalExceptionHandler {
         log.warn("Validation error: {}", ex.getMessage());
 
         Map<String, Object> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error -> {
-            errors.put(error.getField(), error.getDefaultMessage());
-        });
+        ex.getBindingResult().getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 
         return new ValidationErrorResponse(
                 ErrorCode.VALIDATION_FAILED,
@@ -79,5 +95,22 @@ public class GlobalExceptionHandler {
                 errors
         );
 
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleUnexpectedException(
+            Exception ex,
+            HttpServletRequest request) {
+
+        log.error("Unexpected error occurred", ex);
+
+        return new ErrorResponse(
+                ErrorCode.INTERNAL_SERVER_ERROR,
+                ex.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                request.getRequestURI(),
+                LocalDateTime.now()
+        );
     }
 }

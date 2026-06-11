@@ -56,4 +56,12 @@ public class Flight {
         this.price = price;
     }
 
+    public void reserveSeat() {
+        this.availableSeats--;
+    }
+
+    public void releaseSeat() {
+        this.availableSeats++;
+    }
+
 }

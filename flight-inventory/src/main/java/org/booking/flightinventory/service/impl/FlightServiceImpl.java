@@ -41,6 +41,8 @@ public class FlightServiceImpl implements FlightService {
         Flight flight = getExistingFlight(id);
         applyUpdate(flight,request);
 
+        flightRepository.save(flight);
+
         log.info("Flight updated with ID: {}", id);
 
         return flightMapper.toResponse(flight);

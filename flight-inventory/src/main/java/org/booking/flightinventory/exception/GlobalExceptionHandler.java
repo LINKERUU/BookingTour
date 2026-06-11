@@ -3,6 +3,7 @@ package org.booking.flightinventory.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.booking.flightinventory.exception.custom.FlightNotFoundException;
+import org.booking.flightinventory.exception.custom.NoAvailableSeatsException;
 import org.booking.flightinventory.exception.custom.ServiceUnavailableException;
 import org.booking.flightinventory.exception.dto.ErrorCode;
 import org.booking.flightinventory.exception.dto.ErrorResponse;
@@ -33,6 +34,23 @@ public class GlobalExceptionHandler {
                 ex.getErrorCode(),
                 ex.getMessage(),
                 HttpStatus.NOT_FOUND.value(),
+                request.getRequestURI(),
+                LocalDateTime.now()
+        );
+    }
+
+    @ExceptionHandler(NoAvailableSeatsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleNoAvailableSeatsException(
+            NoAvailableSeatsException ex,
+            HttpServletRequest request
+    ) {
+        log.warn("Booking failed - No available seats: {}", ex.getMessage());
+
+        return new ErrorResponse(
+                ex.getErrorCode(),
+                ex.getMessage(),
+                HttpStatus.CONFLICT.value(),
                 request.getRequestURI(),
                 LocalDateTime.now()
         );
@@ -77,7 +95,23 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now(),
                 errors
         );
+    }
 
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleUnexpectedException(
+            Exception ex,
+            HttpServletRequest request) {
+
+        log.error("Unexpected error occurred", ex);
+
+        return new ErrorResponse(
+                ErrorCode.INTERNAL_SERVER_ERROR,
+                ex.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                request.getRequestURI(),
+                LocalDateTime.now()
+        );
     }
 }
 

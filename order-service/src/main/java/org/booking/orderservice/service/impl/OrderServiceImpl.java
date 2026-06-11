@@ -7,12 +7,11 @@ import org.booking.orderservice.dto.OrderRequest;
 import org.booking.orderservice.dto.OrderResponse;
 import org.booking.orderservice.exception.custom.OrderNotFoundException;
 import org.booking.orderservice.mapper.OrderMapper;
+import org.booking.orderservice.messaging.SagaOrchestrator;
 import org.booking.orderservice.model.Order;
 import org.booking.orderservice.repository.OrderRepository;
 import org.booking.orderservice.service.OrderService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -23,13 +22,14 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
+    private final SagaOrchestrator sagaOrchestrator;
 
     @Override
-    @Transactional
-    public OrderResponse createOrder(OrderRequest request){
+    public OrderResponse createOrder(OrderRequest request) {
         Order order = orderMapper.toOrder(request);
-
         orderRepository.save(order);
+
+        sagaOrchestrator.startSaga(orderMapper.toBookingCommand(order));
 
         log.info("Order created with ID: {}", order.getId());
 
@@ -44,12 +44,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    @Transactional
     public OrderResponse updateOrder(String id, OrderPatchRequest request) {
 
         Order order = getExistingOrder(id);
 
-        applyUpdate(order,request);
+        applyUpdate(order, request);
+
+        orderRepository.save(order);
 
         log.info("Order updated with ID: {}", id);
 
@@ -67,7 +68,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private Order getExistingOrder(String id) {
-        return orderRepository.findById(id).orElseThrow(()-> new OrderNotFoundException(id));
+        return orderRepository.findById(id).orElseThrow(() -> new OrderNotFoundException(id));
     }
 
     private void applyUpdate(Order order, OrderPatchRequest request) {
