@@ -75,7 +75,23 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now(),
                 errors
         );
+    }
 
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleUnexpectedException(
+            Exception ex,
+            HttpServletRequest request) {
+
+        log.error("Unexpected error occurred", ex);
+
+        return new ErrorResponse(
+                ErrorCode.INTERNAL_SERVER_ERROR,
+                ex.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                request.getRequestURI(),
+                LocalDateTime.now()
+        );
     }
 }
 
