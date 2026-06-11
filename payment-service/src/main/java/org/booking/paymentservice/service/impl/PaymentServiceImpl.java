@@ -61,7 +61,7 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = getExistingPayment(id);
 
         if (payment.getStatus() == PaymentStatus.COMPLETED) {
-            payment.updateStatus(PaymentStatus.REFUNDED);
+            payment.changeStatus(PaymentStatus.REFUNDED);
             log.info("Payment with id {} has been refunded", id);
             paymentRepository.save(payment);
         }
