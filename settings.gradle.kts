@@ -7,5 +7,6 @@ include(
     "order-service",
     "flight-inventory",
     "hotel-inventory",
-    "payment-service"
+    "payment-service",
+    "shared-lib"
 )

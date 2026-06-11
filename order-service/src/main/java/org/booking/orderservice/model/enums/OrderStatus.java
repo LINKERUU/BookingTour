@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum OrderStatus {
     PENDING,
-    PAYMENT_PROCESSING,
     FLIGHT_RESERVING,
     HOTEL_RESERVING,
+    PAYMENT_PROCESSING,
     CONFIRMED,
     CANCELLED
 }

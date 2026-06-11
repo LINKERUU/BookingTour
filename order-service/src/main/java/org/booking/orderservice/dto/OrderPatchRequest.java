@@ -4,12 +4,12 @@ import jakarta.validation.constraints.Positive;
 
 public record OrderPatchRequest(
         @Positive(message = "User ID must be positive")
-        Long userId,
+        String userId,
 
         @Positive(message = "Flight ID must be positive")
-        Long flightId,
+        String flightId,
 
         @Positive(message = "Hotel ID must be positive")
-        Long hotelId
+        String hotelId
 ) {
 }

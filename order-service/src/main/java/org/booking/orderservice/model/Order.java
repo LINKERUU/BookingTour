@@ -7,6 +7,7 @@ import org.booking.orderservice.model.enums.OrderStatus;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -16,34 +17,41 @@ public class Order {
 
     @Id
     private String id;
-    private Long userId;
-    private Long flightId;
-    private Long hotelId;
+    private String userId;
+    private String flightId;
+    private String hotelId;
     private OrderStatus status;
+    private BigDecimal amount;
     private LocalDateTime createdAt;
 
-    public Order(Long userId, Long flightId, Long hotelId) {
+
+    public Order(String userId, String flightId, String hotelId) {
         this.userId = userId;
         this.flightId = flightId;
         this.hotelId = hotelId;
         this.status = OrderStatus.PENDING;
+        this.amount = BigDecimal.ZERO;
         this.createdAt = LocalDateTime.now();
     }
 
-    public void changeUserId(Long userId) {
+    public void changeUserId(String userId) {
         this.userId = userId;
     }
 
-    public void changeFlightId(Long flightId) {
+    public void changeFlightId(String flightId) {
         this.flightId = flightId;
     }
 
-    public void changeHotelId(Long hotelId) {
+    public void changeHotelId(String hotelId) {
         this.hotelId = hotelId;
     }
 
     public void changeStatus(OrderStatus status) {
         this.status = status;
+    }
+
+    public void changeAmount(BigDecimal amount) {
+        this.amount = amount;
     }
 }
 

@@ -7,14 +7,14 @@ public record OrderRequest(
 
         @NotNull(message = "User ID cannot be null")
         @Positive(message = "User ID must be positive")
-        Long userId,
+        String userId,
 
         @NotNull(message = "Flight ID cannot be null")
         @Positive(message = "Flight ID must be positive")
-        Long flightId,
+        String flightId,
 
         @NotNull(message = "Hotel ID cannot be null")
         @Positive(message = "Hotel ID must be positive")
-        Long hotelId
+        String hotelId
 ) {
 }
