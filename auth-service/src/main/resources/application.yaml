@@ -11,6 +11,9 @@ spring:
     password: guest
   mongodb:
     uri: mongodb://localhost:27017/auth_db
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: 86400000
 
 management:
   tracing:
