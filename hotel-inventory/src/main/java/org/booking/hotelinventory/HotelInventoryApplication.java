@@ -1,6 +1,6 @@
 package org.booking.hotelinventory;
 
-import org.booking.sharedlib.messaging.config.SharedRabbitMQConfig;
+import org.booking.sharedlib.config.SharedRabbitMQConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;

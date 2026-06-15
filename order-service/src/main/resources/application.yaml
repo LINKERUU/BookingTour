@@ -10,7 +10,9 @@ spring:
     username: guest
     password: guest
 
-
   mongodb:
     uri: mongodb://localhost:27017/order_db
+
+  jwt:
+    secret: ${JWT_SECRET}
 

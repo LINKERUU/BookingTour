@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booking.orderservice.model.Order;
 import org.booking.orderservice.service.OrderStateService;
-import org.booking.sharedlib.messaging.config.RabbitMQConstants;
+import org.booking.sharedlib.config.RabbitMQConstants;
 import org.booking.sharedlib.messaging.event.BookingCommand;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;

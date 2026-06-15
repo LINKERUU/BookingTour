@@ -2,13 +2,12 @@ package org.booking.authservice.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.booking.authservice.exception.custom.InvalidCredentialsException;
-import org.booking.authservice.exception.custom.ServiceUnavailableException;
-import org.booking.authservice.exception.custom.UserNotFoundException;
+import org.booking.authservice.exception.custom.*;
 import org.booking.authservice.exception.dto.ErrorCode;
 import org.booking.authservice.exception.dto.ErrorResponse;
 import org.booking.authservice.exception.dto.ValidationErrorResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -54,7 +53,23 @@ public class GlobalExceptionHandler {
                 request.getRequestURI(),
                 LocalDateTime.now()
         );
+    }
 
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleAccessDeniedException(
+            AuthorizationDeniedException ex,
+            HttpServletRequest request
+    ) {
+        log.warn("Access Denied: {}", ex.getMessage());
+
+        return new ErrorResponse(
+                ErrorCode.ACCESS_DENIED,
+                "You don't have permission to access this resource",
+                HttpStatus.FORBIDDEN.value(),
+                request.getRequestURI(),
+                LocalDateTime.now()
+        );
     }
 
     @ExceptionHandler(InvalidCredentialsException.class)
@@ -72,7 +87,6 @@ public class GlobalExceptionHandler {
                 request.getRequestURI(),
                 LocalDateTime.now()
         );
-
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -112,5 +126,7 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now()
         );
     }
+
+
 }
 

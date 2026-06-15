@@ -1,3 +1,5 @@
 spring:
   application:
     name: shared-lib
+  jwt:
+    secret: ${JWT_SECRET}

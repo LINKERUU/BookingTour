@@ -10,4 +10,5 @@ public interface AuthService {
 
     AuthResponse register(RegisterRequest user);
 
+    AuthResponse updateRole(String email);
 }
