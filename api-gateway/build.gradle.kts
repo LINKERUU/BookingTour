@@ -7,7 +7,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.cloud:spring-cloud-starter-gateway-server-webmvc")
-
+    implementation(project(":shared-lib"))
 }
 
 dependencyManagement {

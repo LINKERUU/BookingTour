@@ -35,3 +35,5 @@ spring:
               uri: http://localhost:8082
               predicates:
                 - Path=/api/auth,/api/auth/**
+  jwt:
+    secret: ${JWT_SECRET}

@@ -1,4 +1,4 @@
-package org.booking.sharedlib.messaging.config;
+package org.booking.sharedlib.config;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -7,7 +7,7 @@ import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static org.booking.sharedlib.messaging.config.RabbitMQConstants.*;
+import static org.booking.sharedlib.config.RabbitMQConstants.*;
 
 @Configuration
 public class SharedRabbitMQConfig {

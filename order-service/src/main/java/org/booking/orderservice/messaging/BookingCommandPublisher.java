@@ -1,7 +1,7 @@
 package org.booking.orderservice.messaging;
 
 import lombok.RequiredArgsConstructor;
-import org.booking.sharedlib.messaging.config.RabbitMQConstants;
+import org.booking.sharedlib.config.RabbitMQConstants;
 import org.booking.sharedlib.messaging.event.BookingCommand;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;

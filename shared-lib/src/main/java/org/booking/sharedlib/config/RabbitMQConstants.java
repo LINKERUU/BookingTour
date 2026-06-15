@@ -1,4 +1,4 @@
-package org.booking.sharedlib.messaging.config;
+package org.booking.sharedlib.config;
 
 public final class RabbitMQConstants {
     public static final String BOOKING_EXCHANGE = "booking.exchange";
