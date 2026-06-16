@@ -22,12 +22,14 @@ public class HotelReservationServiceImpl implements HotelReservationService {
         return hotelRepository.findById(HotelId)
                 .map(hotel -> {
                     if (hotel.getAvailableRooms() <= 0) {
-                        log.warn("No seats available HotelId={}", HotelId);
-                        return ReservationResult.failure("No available seats for Hotel: " + HotelId);
+                        log.warn("No rooms available HotelId={}", HotelId);
+                        return ReservationResult.failure("No available rooms for Hotel: " + HotelId);
                     }
+
                     hotel.reserveRoom();
                     hotelRepository.save(hotel);
-                    log.info("Seat reserved HotelId={}", HotelId);
+
+                    log.info("Room reserved HotelId={}", HotelId);
                     return ReservationResult.success(amount.add(hotel.getPricePerNight()));
                 })
                 .orElseGet(() -> {
@@ -39,9 +41,11 @@ public class HotelReservationServiceImpl implements HotelReservationService {
     @Override
     public void cancel(BookingCommand command) {
         hotelRepository.findById(command.hotelId()).ifPresent(hotel -> {
+
             hotel.releaseRoom();
             hotelRepository.save(hotel);
-            log.info("Seat released orderId={}", command.orderId());
+
+            log.info("Room released orderId={}", command.orderId());
         });
     }
 }

@@ -25,8 +25,11 @@ public class FlightReservationServiceImpl implements FlightReservationService {
                         log.warn("No seats available flightId={}", flightId);
                         return ReservationResult.failure("No available seats for flight: " + flightId);
                     }
+
                     flight.reserveSeat();
+
                     flightRepository.save(flight);
+
                     log.info("Seat reserved flightId={}", flightId);
                     return ReservationResult.success(amount.add(flight.getPrice()));
                 })
@@ -39,8 +42,10 @@ public class FlightReservationServiceImpl implements FlightReservationService {
     @Override
     public void cancel(BookingCommand command) {
         flightRepository.findById(command.flightId()).ifPresent(flight -> {
+
             flight.releaseSeat();
             flightRepository.save(flight);
+
             log.info("Seat released orderId={}", command.orderId());
         });
     }

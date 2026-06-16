@@ -9,8 +9,6 @@ import org.booking.sharedlib.messaging.result.ReservationResult;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -27,13 +25,12 @@ public class FlightListener {
         );
 
         if (result.success()) {
-            BigDecimal totalAmount = command.amount().add(result.amount());
-            publisher.handleFlightSuccess(command, "Successfully reserved seat on flight", totalAmount);
-        }
-        else
+            log.info("Flight reserve for orderId={}", command.orderId());
+            publisher.handleFlightSuccess(command, "Successfully reserved seat on flight", result.amount());
+        } else {
+            log.error("Failed to reserve seat on flight, orderId={}", command.orderId());
             publisher.handleFlightFailure(command, result.reason());
-
-        log.info("Flight reserve for orderId={}", command.orderId());
+        }
     }
 
     @RabbitListener(queues = RabbitMQConstants.FLIGHT_CANCEL_QUEUE)

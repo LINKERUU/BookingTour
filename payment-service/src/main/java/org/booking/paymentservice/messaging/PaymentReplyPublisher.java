@@ -15,15 +15,15 @@ public class PaymentReplyPublisher {
 
     private final RabbitTemplate rabbitTemplate;
 
-    public void handleFlightSuccess(BookingCommand command, String reason, BigDecimal amount) {
+    public void handlePaymentSuccess(BookingCommand command, String reason, BigDecimal amount) {
         publish(BookingReply.success(command, reason, amount));
     }
 
-    public void handleFlightFailure(BookingCommand command, String reason) {
+    public void handlePaymentFailure(BookingCommand command, String reason) {
         publish(BookingReply.failure(command, reason));
     }
 
     private void publish(BookingReply reply) {
-        rabbitTemplate.convertAndSend(RabbitMQConstants.BOOKING_EXCHANGE, RabbitMQConstants.FLIGHT_REPLY_KEY, reply);
+        rabbitTemplate.convertAndSend(RabbitMQConstants.BOOKING_EXCHANGE, RabbitMQConstants.PAYMENT_REPLY_KEY, reply);
     }
 }

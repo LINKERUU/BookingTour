@@ -9,6 +9,8 @@ import org.booking.sharedlib.messaging.event.BookingCommand;
 import org.booking.sharedlib.messaging.event.BookingReply;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -21,15 +23,15 @@ public class SagaOrchestrator {
     public void startSaga(BookingCommand command) {
         log.info("SagaOrchestrator start for id: {}", command.orderId());
 
-        orderStateService.changeStatus(command.orderId(), OrderStatus.FLIGHT_RESERVING);
+        orderStateService.changeStatus(command.orderId(), BigDecimal.ZERO,OrderStatus.FLIGHT_RESERVING);
 
         commandPublisher.reserveFlight(command);
     }
 
     public void handleFlightSuccess(BookingReply reply) {
-        log.info("SagaOrchestrator handleFlightReply for id: {}", reply.orderId());
+        log.info("[FLIGHT_RESERVING]SagaOrchestrator handleFlightReply for id: {}", reply.orderId());
 
-        orderStateService.changeStatus(reply.orderId(), OrderStatus.HOTEL_RESERVING);
+        orderStateService.changeStatus(reply.orderId(), reply.amount(),OrderStatus.HOTEL_RESERVING);
 
         BookingCommand command = orderMapper.toBookingCommand(orderStateService.getOrder(reply.orderId()));
 
@@ -38,13 +40,14 @@ public class SagaOrchestrator {
     }
 
     public void handleFlightFailure(BookingReply reply) {
+        log.info("Canceled Flight reply for id: {}", reply.orderId());
         orderStateService.cancel(reply.orderId());
     }
 
     public void handleHotelSuccess(BookingReply reply) {
-        log.info("SagaOrchestrator handleHotelReply for id: {}", reply.orderId());
+        log.info("[HOTEL_RESERVING]SagaOrchestrator handleHotelReply for id: {}", reply.orderId());
 
-        orderStateService.changeStatus(reply.orderId(), OrderStatus.PAYMENT_PROCESSING);
+        orderStateService.changeStatus(reply.orderId(), reply.amount(),OrderStatus.PAYMENT_PROCESSING);
 
         BookingCommand command = orderMapper.toBookingCommand(orderStateService.getOrder(reply.orderId()));
 
@@ -53,6 +56,7 @@ public class SagaOrchestrator {
     }
 
     public void handleHotelFailure(BookingReply reply) {
+        log.info("Canceled Hotel reply for id: {}", reply.orderId());
         orderStateService.cancel(reply.orderId());
 
         BookingCommand compensation = orderMapper.toBookingCommand(orderStateService.getOrder(reply.orderId()));
@@ -62,7 +66,7 @@ public class SagaOrchestrator {
     }
 
     public void handlePaymentSuccess(BookingReply reply) {
-        log.info("SagaOrchestrator handlePaymentReply for id: {}", reply.orderId());
+        log.info("[PAYMENT_PROCESSING]SagaOrchestrator handlePaymentReply for id: {}", reply.orderId());
 
         orderStateService.confirm(reply.orderId(), reply.amount());
 
@@ -70,6 +74,7 @@ public class SagaOrchestrator {
     }
 
     public void handlePaymentFailure(BookingReply reply) {
+        log.info("Canceled Payment reply for id: {}", reply.orderId());
         orderStateService.cancel(reply.orderId());
 
         BookingCommand compensation = orderMapper.toBookingCommand(orderStateService.getOrder(reply.orderId()));

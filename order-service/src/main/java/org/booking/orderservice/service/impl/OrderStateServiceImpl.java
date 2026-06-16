@@ -22,8 +22,9 @@ public class OrderStateServiceImpl implements OrderStateService {
     }
 
     @Override
-    public void changeStatus(String orderId, OrderStatus orderStatus) {
+    public void changeStatus(String orderId,BigDecimal amount, OrderStatus orderStatus) {
         Order order = getOrder(orderId);
+        order.changeAmount(amount);
         order.changeStatus(orderStatus);
         orderRepository.save(order);
     }

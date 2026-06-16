@@ -24,10 +24,14 @@ public class DeadLetterHandler {
         switch (order.getStatus()) {
 
             case PAYMENT_PROCESSING -> {
+                log.warn("Order has been cancelled on Payment reservation step for order id: {}", command.orderId());
                 commandPublisher.cancelFlight(command);
                 commandPublisher.cancelHotel(command);
             }
-            case HOTEL_RESERVING -> commandPublisher.cancelFlight(command);
+            case HOTEL_RESERVING ->{
+                log.warn("Order has been cancelled on Hotel reservation step for order id: {}", command.orderId());
+                commandPublisher.cancelFlight(command);
+            }
 
             case FLIGHT_RESERVING ->
                     log.warn("Order has been cancelled on Flight reservation step for order id: {}", command.orderId());

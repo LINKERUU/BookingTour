@@ -37,8 +37,12 @@ public class PaymentProcessServiceImpl implements PaymentProcessService {
                 command.userId(),
                 command.amount()
         );
+        log.info("Before payment {}", payment.getStatus());
+
         payment.changeStatus(PaymentStatus.COMPLETED);
         paymentRepository.save(payment);
+
+        log.info("After payment {}", payment.getStatus());
 
         log.info("Payment completed for orderId={} amount={}",
                 command.orderId(), command.amount());
@@ -50,8 +54,12 @@ public class PaymentProcessServiceImpl implements PaymentProcessService {
     public void refund(BookingCommand command) {
         paymentRepository.findByOrderId(command.orderId())
                 .ifPresentOrElse(payment -> {
+                            log.info("Before payment {}", payment.getStatus());
+
                             payment.changeStatus(PaymentStatus.REFUNDED);
                             paymentRepository.save(payment);
+
+                            log.info("After payment {}", payment.getStatus());
                             log.info("Payment refunded for orderId={}", command.orderId());
                         },
                 () -> log.warn("Payment not found for refund orderId={}", command.orderId())

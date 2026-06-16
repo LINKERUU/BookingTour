@@ -13,35 +13,35 @@ import static org.booking.sharedlib.config.RabbitMQConstants.*;
 public class SharedRabbitMQConfig {
 
     @Bean
-    Queue flightCancelQueue() {
+    public Queue flightCancelQueue() {
         return QueueBuilder.durable(FLIGHT_CANCEL_QUEUE).build();
     }
 
     @Bean
-    Binding flightCancelBinding() {
+    public Binding flightCancelBinding() {
         return BindingBuilder.bind(flightCancelQueue())
                 .to(bookingExchange()).with(FLIGHT_CANCEL_KEY);
     }
 
     @Bean
-    Queue hotelCancelQueue() {
+    public Queue hotelCancelQueue() {
         return QueueBuilder.durable(HOTEL_CANCEL_QUEUE).build();
     }
 
     @Bean
-    Binding hotelCancelBinding() {
+    public Binding hotelCancelBinding() {
         return BindingBuilder.bind(hotelCancelQueue())
                 .to(bookingExchange()).with(HOTEL_CANCEL_KEY);
     }
 
     @Bean
-    Queue paymentCancelQueue() {
+    public Queue paymentCancelQueue() {
         return QueueBuilder.durable(PAYMENT_CANCEL_QUEUE).build();
     }
 
     @Bean
-    Binding paymentCancelBinding() {
-        return BindingBuilder.bind(hotelCancelQueue())
+    public Binding paymentCancelBinding() {
+        return BindingBuilder.bind(paymentCancelQueue())
                 .to(bookingExchange()).with(PAYMENT_CANCEL_KEY);
     }
 
@@ -69,7 +69,7 @@ public class SharedRabbitMQConfig {
     }
 
     @Bean
-    Queue paymentCommandQueue() {
+    public Queue paymentCommandQueue() {
         return QueueBuilder.durable(PAYMENT_COMMAND_QUEUE)
                 .withArgument("x-dead-letter-exchange", DEAD_LETTER_EXCHANGE)
                 .withArgument("x-dead-letter-routing-key", DEAD_LETTER_KEY)
@@ -77,7 +77,7 @@ public class SharedRabbitMQConfig {
     }
 
     @Bean
-    Binding paymentCommandBinding() {
+    public Binding paymentCommandBinding() {
         return BindingBuilder.bind(paymentCommandQueue())
                 .to(bookingExchange()).with(PAYMENT_COMMAND_KEY);
     }

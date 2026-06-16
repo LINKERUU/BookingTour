@@ -9,8 +9,11 @@ spring:
     port: 5672
     username: guest
     password: guest
+    listener:
+      simple:
+        default-requeue-rejected: false
   mongodb:
-    uri: mongodb://localhost:27017/order_db
+    uri: mongodb://localhost:27017/payment_db
   jwt:
     secret: ${JWT_SECRET}
 
