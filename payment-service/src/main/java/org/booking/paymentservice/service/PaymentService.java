@@ -16,4 +16,5 @@ public interface PaymentService {
 
     PaymentResponse cancelPayment(String id);
 
+    PaymentResponse getByOrderId(String orderId);
 }

@@ -4,14 +4,15 @@ server:
 spring:
   application:
     name: api-composition
-#  data:
-#    mongodb:
-#      uri: mongodb://localhost:27017/order_db
-#  rabbitmq:
-#    host: localhost
-#    port: 5672
-#    username: guest
-#    password: guest
+  jwt:
+    secret: ${JWT_SECRET}
+
+
+services:
+  order-service: http://localhost:8085
+  payment-service: http://localhost:8086
+  flight-service: http://localhost:8083
+  hotel-service: http://localhost:8084
 
 #management:
 #  tracing:

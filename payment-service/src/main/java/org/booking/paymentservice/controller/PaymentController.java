@@ -48,4 +48,8 @@ public class PaymentController {
         return paymentService.cancelPayment(id);
     }
 
+    @GetMapping("/order/{orderId}")
+    public PaymentResponse getByOrderId(@PathVariable String orderId) {
+        return paymentService.getByOrderId(orderId);
+    }
 }

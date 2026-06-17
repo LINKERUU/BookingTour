@@ -71,6 +71,14 @@ public class PaymentServiceImpl implements PaymentService {
         return paymentMapper.toResponse(payment);
     }
 
+    @Override
+    public PaymentResponse getByOrderId(String orderId){
+
+        Payment payment = paymentRepository.findByOrderId(orderId).orElseThrow(() -> new PaymentNotFoundException(orderId));
+
+        return paymentMapper.toResponse(payment);
+    }
+
     private Payment getExistingPayment(String id) {
         return paymentRepository.findById(id).orElseThrow(() -> new PaymentNotFoundException(id));
     }
