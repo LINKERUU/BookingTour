@@ -8,7 +8,6 @@ import org.booking.authservice.dto.LoginRequest;
 import org.booking.authservice.dto.RegisterRequest;
 import org.booking.authservice.service.AuthService;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -30,15 +29,4 @@ public class AuthController {
         return authService.login(request);
     }
 
-    @PostMapping("/updateRole")
-    public AuthResponse update(@Valid @RequestParam String email) {
-        return authService.updateRole(email);
-    }
-
-
-    @GetMapping("/admin")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String admin() {
-        return "ok";
-    }
 }

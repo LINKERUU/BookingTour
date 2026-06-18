@@ -1,13 +1,13 @@
-package org.booking.sharedlib.security.dto;
+package org.booking.apigateway.exception.dto;
+
 
 import java.time.LocalDateTime;
 
-public record ErrorResponse (
+public record ErrorResponse(
         ErrorCode errorCode,
         String message,
         int status,
         String path,
         LocalDateTime timestamp
-){
+) {
 }
-

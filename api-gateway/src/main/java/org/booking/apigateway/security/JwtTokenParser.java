@@ -1,10 +1,10 @@
-package org.booking.sharedlib.security;
+package org.booking.apigateway.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
-import org.booking.sharedlib.security.dto.JwtUserInfo;
+import org.booking.apigateway.security.dto.JwtUserInfo;
 
 import javax.crypto.SecretKey;
 import java.util.Base64;

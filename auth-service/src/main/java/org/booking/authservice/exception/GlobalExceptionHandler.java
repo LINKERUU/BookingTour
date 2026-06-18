@@ -23,11 +23,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleHotelNotFoundException(
+    public ErrorResponse handleUserNotFoundException(
             UserNotFoundException ex,
             HttpServletRequest request
     ) {
-        log.warn("Hotel not found: {}", ex.getMessage());
+        log.warn("{}", ex.getMessage());
 
         return new ErrorResponse(
                 ex.getErrorCode(),
@@ -61,10 +61,10 @@ public class GlobalExceptionHandler {
             AuthorizationDeniedException ex,
             HttpServletRequest request
     ) {
-        log.warn("Access Denied: {}", ex.getMessage());
+        log.warn("{}", ex.getMessage());
 
         return new ErrorResponse(
-                ErrorCode.ACCESS_DENIED,
+                ErrorCode.FORBIDDEN,
                 "You don't have permission to access this resource",
                 HttpStatus.FORBIDDEN.value(),
                 request.getRequestURI(),
@@ -79,6 +79,23 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
         log.warn("Invalid Credentials: {}", ex.getMessage());
+
+        return new ErrorResponse(
+                ex.getErrorCode(),
+                ex.getMessage(),
+                HttpStatus.CONFLICT.value(),
+                request.getRequestURI(),
+                LocalDateTime.now()
+        );
+    }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleUserAlreadyExistsException(
+            UserAlreadyExistsException ex,
+            HttpServletRequest request
+    ) {
+        log.warn("{}", ex.getMessage());
 
         return new ErrorResponse(
                 ex.getErrorCode(),

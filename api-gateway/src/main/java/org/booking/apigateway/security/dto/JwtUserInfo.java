@@ -1,4 +1,4 @@
-package org.booking.sharedlib.security.dto;
+package org.booking.apigateway.security.dto;
 
 public record JwtUserInfo(
         String userId,

@@ -16,6 +16,5 @@ public record RegisterRequest(
         @NotBlank(message = "Password cannot be blank")
         @Size(min=8, message = "Password must be at least 8 characters")
         String password
-
 ) {
 }

@@ -1,6 +1,5 @@
 package org.booking.authservice.service.impl;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
@@ -33,26 +32,6 @@ public class JwtServiceImpl implements JwtService {
                 .expiration(new Date(System.currentTimeMillis() + expiration ))
                 .signWith(getSigningKey())
                 .compact();
-    }
-
-    @Override
-    public String extractEmail(String token) {
-        return extractClaims(token).getSubject();
-    }
-
-    @Override
-    public boolean isTokenValid(String token) {
-        return extractClaims(token).getExpiration().after(new Date());
-    }
-
-
-
-    private Claims extractClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
     }
 
     private SecretKey getSigningKey() {

@@ -9,7 +9,6 @@ import org.booking.authservice.exception.custom.InvalidCredentialsException;
 import org.booking.authservice.exception.custom.UserAlreadyExistsException;
 import org.booking.authservice.mapper.AuthMapper;
 import org.booking.authservice.model.User;
-import org.booking.authservice.model.enums.Role;
 import org.booking.authservice.repository.UserRepository;
 import org.booking.authservice.service.AuthService;
 import org.booking.authservice.service.JwtService;
@@ -61,18 +60,5 @@ public class AuthServiceImpl implements AuthService {
 
         return authMapper.toResponse(user,token);
     }
-
-    public AuthResponse updateRole(String email) {
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(InvalidCredentialsException::new);
-
-        user.changeRole(Role.ADMIN);
-
-        userRepository.save(user);
-
-        return  authMapper.toResponse(user,null);
-    }
-
 
 }

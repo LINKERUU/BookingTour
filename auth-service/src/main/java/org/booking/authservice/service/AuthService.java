@@ -9,6 +9,4 @@ public interface AuthService {
     AuthResponse login(LoginRequest user);
 
     AuthResponse register(RegisterRequest user);
-
-    AuthResponse updateRole(String email);
 }
