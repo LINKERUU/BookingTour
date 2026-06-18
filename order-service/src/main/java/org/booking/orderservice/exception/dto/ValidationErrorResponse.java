@@ -7,11 +7,11 @@ import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ValidationErrorResponse(
-  ErrorCode errorCode,
-  String message,
-  int status,
-  String path,
-  LocalDateTime timestamp,
-  Map<String, Object> errors
-){
+        ErrorCode errorCode,
+        String message,
+        int status,
+        String path,
+        LocalDateTime timestamp,
+        Map<String, Object> errors
+) {
 }

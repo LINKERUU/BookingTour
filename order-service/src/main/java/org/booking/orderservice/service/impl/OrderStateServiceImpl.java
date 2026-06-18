@@ -18,11 +18,11 @@ public class OrderStateServiceImpl implements OrderStateService {
 
     @Override
     public Order getOrder(String orderId) {
-        return orderRepository.findById(orderId).orElseThrow(()-> new OrderNotFoundException(orderId));
+        return orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
     }
 
     @Override
-    public void changeStatus(String orderId,BigDecimal amount, OrderStatus orderStatus) {
+    public void changeStatus(String orderId, BigDecimal amount, OrderStatus orderStatus) {
         Order order = getOrder(orderId);
         order.changeAmount(amount);
         order.changeStatus(orderStatus);
@@ -31,8 +31,8 @@ public class OrderStateServiceImpl implements OrderStateService {
 
     @Override
     public void confirm(String orderId, BigDecimal amount) {
-        Order order = getOrder(orderId);
 
+        Order order = getOrder(orderId);
         order.changeAmount(amount);
         order.changeStatus(OrderStatus.CONFIRMED);
 
@@ -42,7 +42,6 @@ public class OrderStateServiceImpl implements OrderStateService {
     @Override
     public void cancel(String orderId) {
         Order order = getOrder(orderId);
-
         order.changeStatus(OrderStatus.CANCELLED);
 
         orderRepository.save(order);

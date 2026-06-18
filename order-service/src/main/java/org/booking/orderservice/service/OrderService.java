@@ -6,7 +6,7 @@ import org.booking.orderservice.dto.OrderResponse;
 
 public interface OrderService {
 
-    OrderResponse createOrder(OrderRequest orderRequest);
+    OrderResponse createOrder(OrderRequest orderRequest, String userId);
 
     OrderResponse getOrderById(String id);
 

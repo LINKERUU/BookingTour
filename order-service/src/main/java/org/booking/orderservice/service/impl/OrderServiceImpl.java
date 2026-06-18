@@ -25,8 +25,8 @@ public class OrderServiceImpl implements OrderService {
     private final SagaOrchestrator sagaOrchestrator;
 
     @Override
-    public OrderResponse createOrder(OrderRequest request) {
-        Order order = orderMapper.toOrder(request);
+    public OrderResponse createOrder(OrderRequest request, String userId) {
+        Order order = orderMapper.toOrder(request, userId);
         orderRepository.save(order);
 
         sagaOrchestrator.startSaga(orderMapper.toBookingCommand(order));
@@ -60,11 +60,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void deleteOrder(String id) {
 
-        getExistingOrder(id);
-
+        orderRepository.delete(getExistingOrder(id));
         log.info("Delete order by ID: {}", id);
 
-        orderRepository.deleteById(id);
     }
 
     private Order getExistingOrder(String id) {
@@ -72,7 +70,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private void applyUpdate(Order order, OrderPatchRequest request) {
-        Optional.ofNullable(request.userId()).ifPresent(order::changeUserId);
         Optional.ofNullable(request.flightId()).ifPresent(order::changeFlightId);
         Optional.ofNullable(request.hotelId()).ifPresent(order::changeHotelId);
     }

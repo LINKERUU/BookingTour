@@ -9,7 +9,7 @@ public interface OrderStateService {
 
     Order getOrder(String orderId);
 
-    void changeStatus(String orderId,BigDecimal amount, OrderStatus orderStatus);
+    void changeStatus(String orderId, BigDecimal amount, OrderStatus orderStatus);
 
     void confirm(String orderId, BigDecimal amount);
 
