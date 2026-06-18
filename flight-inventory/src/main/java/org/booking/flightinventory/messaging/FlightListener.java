@@ -28,7 +28,7 @@ public class FlightListener {
             log.info("Flight reserve for orderId={}", command.orderId());
             publisher.handleFlightSuccess(command, "Successfully reserved seat on flight", result.amount());
         } else {
-            log.error("Failed to reserve seat on flight, orderId={}", command.orderId());
+            log.warn("Failed to reserve seat on flight, orderId={}", command.orderId());
             publisher.handleFlightFailure(command, result.reason());
         }
     }

@@ -39,7 +39,8 @@ public class FlightServiceImpl implements FlightService {
     @Override
     public FlightResponse updateFlight(String id, FlightPatchRequest request) {
         Flight flight = getExistingFlight(id);
-        applyUpdate(flight,request);
+
+        applyUpdate(flight, request);
 
         flightRepository.save(flight);
 
@@ -50,7 +51,7 @@ public class FlightServiceImpl implements FlightService {
 
     @Override
     public List<FlightResponse> searchFlights(String arrival, String departure) {
-        return flightRepository.findByArrivalToAndDepartureFrom(arrival,departure)
+        return flightRepository.findByArrivalToAndDepartureFrom(arrival, departure)
                 .stream()
                 .map(flightMapper::toResponse)
                 .toList();
@@ -74,15 +75,15 @@ public class FlightServiceImpl implements FlightService {
     }
 
     private Flight getExistingFlight(String id) {
-        return flightRepository.findById(id).orElseThrow(()-> new FlightNotFoundException(id));
+        return flightRepository.findById(id).orElseThrow(() -> new FlightNotFoundException(id));
     }
 
     private void applyUpdate(Flight flight, FlightPatchRequest request) {
-        Optional.ofNullable(flight.getFlightNumber()).ifPresent(flight::changeFlightNumber);
+        Optional.ofNullable(request.flightNumber()).ifPresent(flight::changeFlightNumber);
         Optional.ofNullable(request.arrivalTo()).ifPresent(flight::changeArrivalTo);
         Optional.ofNullable(request.departureFrom()).ifPresent(flight::changeDepartureFrom);
         Optional.ofNullable(request.departureTime()).ifPresent(flight::changeDepartureTime);
-        Optional.of(request.availableSeats()).ifPresent(flight::changeAvailableSeats);
+        Optional.ofNullable(request.availableSeats()).ifPresent(flight::changeAvailableSeats);
         Optional.ofNullable(request.price()).ifPresent(flight::changePrice);
     }
 }
