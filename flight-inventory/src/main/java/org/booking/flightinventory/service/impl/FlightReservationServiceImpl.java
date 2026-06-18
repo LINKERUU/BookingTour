@@ -27,13 +27,14 @@ public class FlightReservationServiceImpl implements FlightReservationService {
                     }
 
                     flight.reserveSeat();
-
                     flightRepository.save(flight);
 
                     log.info("Seat reserved flightId={}", flightId);
+
                     return ReservationResult.success(amount.add(flight.getPrice()));
                 })
                 .orElseGet(() -> {
+
                     log.warn("Flight not found flightId={}", flightId);
                     return ReservationResult.failure("Flight not found: " + flightId);
                 });

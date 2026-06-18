@@ -9,6 +9,7 @@ import org.booking.flightinventory.exception.dto.ErrorCode;
 import org.booking.flightinventory.exception.dto.ErrorResponse;
 import org.booking.flightinventory.exception.dto.ValidationErrorResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -28,12 +29,29 @@ public class GlobalExceptionHandler {
             FlightNotFoundException ex,
             HttpServletRequest request
     ) {
-        log.warn("Flight not found: {}", ex.getMessage());
+        log.warn("{}", ex.getMessage());
 
         return new ErrorResponse(
                 ex.getErrorCode(),
                 ex.getMessage(),
                 HttpStatus.NOT_FOUND.value(),
+                request.getRequestURI(),
+                LocalDateTime.now()
+        );
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleAccessDeniedException(
+            AuthorizationDeniedException ex,
+            HttpServletRequest request
+    ) {
+        log.warn("{}", ex.getMessage());
+
+        return new ErrorResponse(
+                ErrorCode.FORBIDDEN,
+                "You don't have permission to access this resource",
+                HttpStatus.FORBIDDEN.value(),
                 request.getRequestURI(),
                 LocalDateTime.now()
         );
@@ -45,7 +63,7 @@ public class GlobalExceptionHandler {
             NoAvailableSeatsException ex,
             HttpServletRequest request
     ) {
-        log.warn("Booking failed - No available seats: {}", ex.getMessage());
+        log.warn("{}", ex.getMessage());
 
         return new ErrorResponse(
                 ex.getErrorCode(),
@@ -83,9 +101,7 @@ public class GlobalExceptionHandler {
         log.warn("Validation error: {}", ex.getMessage());
 
         Map<String, Object> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error -> {
-            errors.put(error.getField(), error.getDefaultMessage());
-        });
+        ex.getBindingResult().getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 
         return new ValidationErrorResponse(
                 ErrorCode.VALIDATION_FAILED,
