@@ -1,6 +1,5 @@
 package org.booking.authservice.model;
 
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

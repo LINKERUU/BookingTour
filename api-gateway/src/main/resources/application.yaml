@@ -14,27 +14,27 @@ spring:
             - id: flight-inventory-route
               uri: http://localhost:8083
               predicates:
-                - Path=/api/flights,/api/flights/**
+                - Path=/api/flights/**
 
             - id: hotel-inventory-route
               uri: http://localhost:8084
               predicates:
-                - Path=/api/hotels,/api/hotels/**
+                - Path=/api/hotels/**
 
             - id: payment-order-route
               uri: http://localhost:8085
               predicates:
-                - Path=/api/orders,/api/orders/**
+                - Path=/api/orders/**
 
             - id: payment-service-route
               uri: http://localhost:8086
               predicates:
-                - Path=/api/payments,/api/payments/**
+                - Path=/api/payments/**
 
             - id: auth-service-route
               uri: http://localhost:8082
               predicates:
-                - Path=/api/auth,/api/auth/**
+                - Path=/api/auth/**
 
             - id: api-composition-route
               uri: http://localhost:8081
