@@ -19,8 +19,9 @@ public class OrderController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public OrderResponse createOrder(@Valid @RequestBody OrderRequest orderRequest) {
-        return orderService.createOrder(orderRequest);
+    public OrderResponse createOrder(@Valid @RequestBody OrderRequest orderRequest,
+                                     @RequestHeader("X-User-Id") String userId) {
+        return orderService.createOrder(orderRequest, userId);
     }
 
     @GetMapping(ID)
@@ -30,8 +31,8 @@ public class OrderController {
     }
 
     @PatchMapping(ID)
-    public OrderResponse updateOrder(@PathVariable String id,@Valid @RequestBody OrderPatchRequest orderRequest) {
-        return orderService.updateOrder(id,orderRequest);
+    public OrderResponse updateOrder(@PathVariable String id, @Valid @RequestBody OrderPatchRequest orderRequest) {
+        return orderService.updateOrder(id, orderRequest);
     }
 
     @DeleteMapping(ID)

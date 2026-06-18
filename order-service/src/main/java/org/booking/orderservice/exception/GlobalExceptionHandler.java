@@ -2,13 +2,13 @@ package org.booking.orderservice.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.booking.orderservice.exception.custom.NoAvailableRoomsException;
 import org.booking.orderservice.exception.custom.OrderNotFoundException;
 import org.booking.orderservice.exception.custom.ServiceUnavailableException;
 import org.booking.orderservice.exception.dto.ErrorCode;
 import org.booking.orderservice.exception.dto.ErrorResponse;
 import org.booking.orderservice.exception.dto.ValidationErrorResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
             OrderNotFoundException ex,
             HttpServletRequest request
     ) {
-        log.warn("Order not found: {}", ex.getMessage());
+        log.warn("{}", ex.getMessage());
 
         return new ErrorResponse(
                 ex.getErrorCode(),
@@ -40,18 +40,18 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(NoAvailableRoomsException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleNoAvailableSeatsException(
-            NoAvailableRoomsException ex,
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleAccessDeniedException(
+            AuthorizationDeniedException ex,
             HttpServletRequest request
     ) {
-        log.warn("Booking failed - No available rooms: {}", ex.getMessage());
+        log.warn("{}", ex.getMessage());
 
         return new ErrorResponse(
-                ex.getErrorCode(),
-                ex.getMessage(),
-                HttpStatus.CONFLICT.value(),
+                ErrorCode.FORBIDDEN,
+                "You don't have permission to access this resource",
+                HttpStatus.FORBIDDEN.value(),
                 request.getRequestURI(),
                 LocalDateTime.now()
         );
@@ -72,7 +72,6 @@ public class GlobalExceptionHandler {
                 request.getRequestURI(),
                 LocalDateTime.now()
         );
-
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -94,7 +93,6 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now(),
                 errors
         );
-
     }
 
     @ExceptionHandler(Exception.class)

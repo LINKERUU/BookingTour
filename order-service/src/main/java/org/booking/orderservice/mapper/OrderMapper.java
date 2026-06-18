@@ -13,7 +13,7 @@ public interface OrderMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    Order toOrder(OrderRequest request);
+    Order toOrder(OrderRequest request, String userId);
 
     @Mapping(target = "orderId", source = "id")
     BookingCommand toBookingCommand(Order order);
