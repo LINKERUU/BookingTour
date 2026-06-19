@@ -4,21 +4,8 @@ server:
 spring:
   application:
     name: auth-service
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
   mongodb:
-    uri: mongodb://localhost:27017/auth_db
+    uri: ${MONGODB_URL:mongodb://localhost:27017/auth_db}
   jwt:
     secret: ${JWT_SECRET}
     expiration: 86400000
-
-management:
-  tracing:
-    sampling:
-      probability: 1.0
-  zipkin:
-    tracing:
-      endpoint: http://localhost:9411/api/v2/spans

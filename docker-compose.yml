@@ -1,5 +1,5 @@
+name: "booking-core"
 services:
-
   mongodb:
     image: mongo:7
     container_name: mongodb
@@ -7,6 +7,8 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    networks:
+      - booking-network
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -15,14 +17,153 @@ services:
       - "5672:5672"
       - "15672:15672"
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASS: ${RABBITMQ_PASS}
+    networks:
+      - booking-network
 
   zipkin:
     image: openzipkin/zipkin
     container_name: zipkin
     ports:
       - "9411:9411"
+    networks:
+      - booking-network
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "8082:8082"
+    environment:
+      MONGODB_URL: ${MONGO_AUTH_URL}
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - mongodb
+    networks:
+      - booking-network
+
+  order-service:
+    build: ./order-service
+    container_name: order-service
+    ports:
+      - "8085:8085"
+    environment:
+      MONGODB_URL: ${MONGO_ORDER_URL}
+      RABBITMQ_HOST: ${RABBIT_HOST}
+      RABBITMQ_PORT: ${RABBIT_PORT}
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASS: ${RABBITMQ_PASS}
+      JWT_SECRET: ${JWT_SECRET}
+      ZIPKIN_URL: ${ZIPKIN_URL}
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - zipkin
+    networks:
+      - booking-network
+
+  payment-service:
+    build: ./payment-service
+    container_name: payment-service
+    ports:
+      - "8086:8086"
+    environment:
+      MONGODB_URL: ${MONGO_PAYMENT_URL}
+      RABBITMQ_HOST: ${RABBIT_HOST}
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASS: ${RABBITMQ_PASS}
+      RABBITMQ_PORT:  ${RABBIT_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      ZIPKIN_URL: ${ZIPKIN_URL}
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - zipkin
+    networks:
+      - booking-network
+
+  flight-inventory:
+    build: ./flight-inventory
+    container_name: flight-inventory
+    ports:
+      - "8083:8083"
+    environment:
+      MONGODB_URL: ${MONGO_FLIGHT_URL}
+      RABBITMQ_HOST: ${RABBIT_HOST}
+      RABBITMQ_PORT: ${RABBIT_PORT}
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASS: ${RABBITMQ_PASS}
+      JWT_SECRET: ${JWT_SECRET}
+      ZIPKIN_URL: ${ZIPKIN_URL}
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - zipkin
+    networks:
+      - booking-network
+
+  hotel-inventory:
+    build: ./hotel-inventory
+    container_name: hotel-inventory
+    ports:
+      - "8084:8084"
+    environment:
+      MONGODB_URL: ${MONGO_HOTEL_URL}
+      RABBITMQ_HOST: ${RABBIT_HOST}
+      RABBITMQ_PORT: ${RABBIT_PORT}
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASS: ${RABBITMQ_PASS}
+      JWT_SECRET: ${JWT_SECRET}
+      ZIPKIN_URL: ${ZIPKIN_URL}
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - zipkin
+    networks:
+      - booking-network
+
+  api-composition:
+    build: ./api-composition
+    container_name: api-composition
+    ports:
+      - "8087:8087"
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      ORDER_SERVICE_URL: ${ORDER_SERVICE_URL}
+      PAYMENT_SERVICE_URL: ${PAYMENT_SERVICE_URL}
+      FLIGHT_SERVICE_URL: ${FLIGHT_SERVICE_URL}
+      HOTEL_SERVICE_URL: ${HOTEL_SERVICE_URL}
+    depends_on:
+      - order-service
+      - payment-service
+      - flight-inventory
+      - hotel-inventory
+    networks:
+      - booking-network
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      ORDER_SERVICE_URL: ${ORDER_SERVICE_URL}
+      PAYMENT_SERVICE_URL: ${PAYMENT_SERVICE_URL}
+      FLIGHT_SERVICE_URL: ${FLIGHT_SERVICE_URL}
+      HOTEL_SERVICE_URL: ${HOTEL_SERVICE_URL}
+      AUTH_SERVICE_URL: ${AUTH_SERVICE_URL}
+      API_COMPOSITION_URL: ${API_COMPOSITION_URL}
+    depends_on:
+      - auth-service
+      - api-composition
+    networks:
+      - booking-network
 
 volumes:
   mongo_data:
+
+networks:
+  booking-network:
+    driver: bridge
