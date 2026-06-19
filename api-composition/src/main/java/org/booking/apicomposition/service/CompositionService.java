@@ -7,5 +7,5 @@ public interface CompositionService {
 
     BookingDetailsResponse getBookingDetails(String orderId);
 
-    OrderInfo fetchOrder(String orderId);
+    OrderInfo fetchOrderDetails(String orderId);
 }

@@ -24,6 +24,6 @@ public class CompositionController {
 
     @GetMapping(ORDER_ID + "/status")
     public OrderInfo getOrderStatus(@PathVariable String orderId) {
-        return compositionService.fetchOrder(orderId);
+        return compositionService.fetchOrderDetails(orderId);
     }
 }
