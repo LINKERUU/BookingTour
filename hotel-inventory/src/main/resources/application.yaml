@@ -14,8 +14,6 @@ spring:
         default-requeue-rejected: false
   mongodb:
     uri: mongodb://localhost:27017/hotel_db
-  jwt:
-    secret: ${JWT_SECRET}
 
 management:
   tracing:

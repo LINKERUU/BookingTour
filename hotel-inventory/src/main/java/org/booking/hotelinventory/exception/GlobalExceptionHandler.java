@@ -3,11 +3,13 @@ package org.booking.hotelinventory.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.booking.hotelinventory.exception.custom.HotelNotFoundException;
+import org.booking.hotelinventory.exception.custom.NoAvailableRoomsException;
 import org.booking.hotelinventory.exception.custom.ServiceUnavailableException;
 import org.booking.hotelinventory.exception.dto.ErrorCode;
 import org.booking.hotelinventory.exception.dto.ErrorResponse;
 import org.booking.hotelinventory.exception.dto.ValidationErrorResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -27,7 +29,7 @@ public class GlobalExceptionHandler {
             HotelNotFoundException ex,
             HttpServletRequest request
     ) {
-        log.warn("Hotel not found: {}", ex.getMessage());
+        log.warn("{}", ex.getMessage());
 
         return new ErrorResponse(
                 ex.getErrorCode(),
@@ -53,7 +55,40 @@ public class GlobalExceptionHandler {
                 request.getRequestURI(),
                 LocalDateTime.now()
         );
+    }
 
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleAccessDeniedException(
+            AuthorizationDeniedException ex,
+            HttpServletRequest request
+    ) {
+        log.warn("{}", ex.getMessage());
+
+        return new ErrorResponse(
+                ErrorCode.FORBIDDEN,
+                "You don't have permission to access this resource",
+                HttpStatus.FORBIDDEN.value(),
+                request.getRequestURI(),
+                LocalDateTime.now()
+        );
+    }
+
+    @ExceptionHandler(NoAvailableRoomsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleNoAvailableRoomsException(
+            NoAvailableRoomsException ex,
+            HttpServletRequest request
+    ) {
+        log.warn("{}", ex.getMessage());
+
+        return new ErrorResponse(
+                ex.getErrorCode(),
+                ex.getMessage(),
+                HttpStatus.CONFLICT.value(),
+                request.getRequestURI(),
+                LocalDateTime.now()
+        );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

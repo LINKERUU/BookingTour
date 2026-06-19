@@ -1,6 +1,5 @@
 package org.booking.hotelinventory.exception.custom;
 
-
 import org.booking.hotelinventory.exception.dto.ErrorCode;
 
 public class ServiceUnavailableException extends BaseException {
