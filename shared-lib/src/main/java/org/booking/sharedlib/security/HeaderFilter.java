@@ -21,7 +21,7 @@ public class HeaderFilter extends OncePerRequestFilter {
         String email = request.getHeader("X-User-Email");
         String role = request.getHeader("X-User-Role");
 
-        if (userId != null && role != null) {
+        if (userId != null && role != null && email != null) {
             String grantedRole = role.startsWith("ROLE_") ? role : "ROLE_" + role;
 
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(email, null,
