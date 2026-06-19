@@ -8,6 +8,7 @@ import org.booking.paymentservice.exception.dto.ErrorCode;
 import org.booking.paymentservice.exception.dto.ErrorResponse;
 import org.booking.paymentservice.exception.dto.ValidationErrorResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -27,7 +28,7 @@ public class GlobalExceptionHandler {
             PaymentNotFoundException ex,
             HttpServletRequest request
     ) {
-        log.warn("Payment not found: {}", ex.getMessage());
+        log.warn("{}", ex.getMessage());
 
         return new ErrorResponse(
                 ex.getErrorCode(),
@@ -53,7 +54,23 @@ public class GlobalExceptionHandler {
                 request.getRequestURI(),
                 LocalDateTime.now()
         );
+    }
 
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleAccessDeniedException(
+            AuthorizationDeniedException ex,
+            HttpServletRequest request
+    ) {
+        log.warn("{}", ex.getMessage());
+
+        return new ErrorResponse(
+                ErrorCode.FORBIDDEN,
+                "You don't have permission to access this resource",
+                HttpStatus.FORBIDDEN.value(),
+                request.getRequestURI(),
+                LocalDateTime.now()
+        );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

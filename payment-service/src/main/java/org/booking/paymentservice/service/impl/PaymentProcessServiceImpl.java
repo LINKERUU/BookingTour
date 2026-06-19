@@ -2,6 +2,7 @@ package org.booking.paymentservice.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.booking.paymentservice.exception.custom.PaymentNotFoundException;
 import org.booking.paymentservice.model.Payment;
 import org.booking.paymentservice.model.enums.PaymentStatus;
 import org.booking.paymentservice.repository.PaymentRepository;
@@ -22,6 +23,7 @@ public class PaymentProcessServiceImpl implements PaymentProcessService {
     @Override
     public ReservationResult processPayment(BookingCommand command) {
 
+
         if (command.amount() == null || command.amount().compareTo(BigDecimal.ZERO) <= 0) {
             log.warn("Invalid amount for orderId={}", command.orderId());
             return ReservationResult.failure("Invalid payment amount");
@@ -37,12 +39,9 @@ public class PaymentProcessServiceImpl implements PaymentProcessService {
                 command.userId(),
                 command.amount()
         );
-        log.info("Before payment {}", payment.getStatus());
 
         payment.changeStatus(PaymentStatus.COMPLETED);
         paymentRepository.save(payment);
-
-        log.info("After payment {}", payment.getStatus());
 
         log.info("Payment completed for orderId={} amount={}",
                 command.orderId(), command.amount());
@@ -50,19 +49,14 @@ public class PaymentProcessServiceImpl implements PaymentProcessService {
         return ReservationResult.success(command.amount());
     }
 
+
     @Override
     public void refund(BookingCommand command) {
-        paymentRepository.findByOrderId(command.orderId())
-                .ifPresentOrElse(payment -> {
-                            log.info("Before payment {}", payment.getStatus());
+        Payment payment = paymentRepository.findByOrderId(command.orderId())
+                .orElseThrow(() -> new PaymentNotFoundException(command.orderId()));
 
-                            payment.changeStatus(PaymentStatus.REFUNDED);
-                            paymentRepository.save(payment);
-
-                            log.info("After payment {}", payment.getStatus());
-                            log.info("Payment refunded for orderId={}", command.orderId());
-                        },
-                () -> log.warn("Payment not found for refund orderId={}", command.orderId())
-                );
+        payment.changeStatus(PaymentStatus.REFUNDED);
+        paymentRepository.save(payment);
     }
+
 }

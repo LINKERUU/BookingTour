@@ -6,7 +6,7 @@ import org.booking.paymentservice.dto.PaymentResponse;
 
 public interface PaymentService {
 
-    PaymentResponse processPayment(PaymentRequest request);
+    PaymentResponse processPayment(PaymentRequest request, String userId);
 
     PaymentResponse getPaymentById(String id);
 

@@ -2,17 +2,18 @@ package org.booking.paymentservice.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.booking.paymentservice.dto.PaymentPatchRequest;
 import org.booking.paymentservice.dto.PaymentRequest;
 import org.booking.paymentservice.dto.PaymentResponse;
 import org.booking.paymentservice.service.PaymentService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.web.bind.annotation.*;
 
-@Slf4j
 @RestController
 @RequestMapping("/api/payments")
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class PaymentController {
 
@@ -20,9 +21,11 @@ public class PaymentController {
     private final String ID = "/{id}";
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
-    public PaymentResponse createPayment(@Valid @RequestBody PaymentRequest request) {
-        return paymentService.processPayment(request);
+    public PaymentResponse createPayment(@Valid @RequestBody PaymentRequest request,
+                                        @RequestHeader("X-User-Id") String userId) {
+        return paymentService.processPayment(request, userId);
     }
 
     @GetMapping(ID)
@@ -43,12 +46,13 @@ public class PaymentController {
     }
 
     @PostMapping(ID + "/refund")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     public PaymentResponse refundPayment(@PathVariable String id) {
         return paymentService.cancelPayment(id);
     }
 
     @GetMapping("/order/{orderId}")
+    @ResponseStatus(HttpStatus.OK)
     public PaymentResponse getByOrderId(@PathVariable String orderId) {
         return paymentService.getByOrderId(orderId);
     }

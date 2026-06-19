@@ -24,8 +24,8 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentMapper paymentMapper;
 
     @Override
-    public PaymentResponse processPayment(PaymentRequest request) {
-        Payment payment = paymentMapper.toPayment(request);
+    public PaymentResponse processPayment(PaymentRequest request, String userId) {
+        Payment payment = paymentMapper.toPayment(request, userId);
         paymentRepository.save(payment);
         log.info("Payment with id {} has been created", payment.getId());
         return paymentMapper.toResponse(payment);
@@ -84,7 +84,6 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private void applyUpdate(Payment payment, PaymentPatchRequest request) {
-        Optional.ofNullable(request.userId()).ifPresent(payment::changeUserId);
         Optional.ofNullable(request.orderId()).ifPresent(payment::changeOrderId);
         Optional.ofNullable(request.amount()).ifPresent(payment::changeAmount);
     }

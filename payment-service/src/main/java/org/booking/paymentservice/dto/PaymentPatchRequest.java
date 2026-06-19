@@ -8,9 +8,7 @@ public record PaymentPatchRequest(
 
         String orderId,
 
-        String userId,
-
-        @Positive(message = "Amount must be positive") BigDecimal amount
-
+        @Positive(message = "Amount must be positive")
+        BigDecimal amount
 ) {
 }
