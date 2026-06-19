@@ -10,8 +10,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface HotelMapper {
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "name" , source = "hotelName")
+    @Mapping(target = "name", source = "hotelName")
     Hotel toHotel(HotelRequest request);
 
     HotelResponse toResponse(Hotel flight);

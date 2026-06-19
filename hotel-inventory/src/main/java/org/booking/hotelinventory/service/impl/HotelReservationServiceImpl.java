@@ -2,6 +2,8 @@ package org.booking.hotelinventory.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.booking.hotelinventory.exception.custom.HotelNotFoundException;
+import org.booking.hotelinventory.model.Hotel;
 import org.booking.hotelinventory.repository.HotelRepository;
 import org.booking.hotelinventory.service.HotelReservationService;
 import org.booking.sharedlib.messaging.event.BookingCommand;
@@ -18,34 +20,34 @@ public class HotelReservationServiceImpl implements HotelReservationService {
     private final HotelRepository hotelRepository;
 
     @Override
-    public ReservationResult reserve(String HotelId, BigDecimal amount) {
-        return hotelRepository.findById(HotelId)
-                .map(hotel -> {
-                    if (hotel.getAvailableRooms() <= 0) {
-                        log.warn("No rooms available HotelId={}", HotelId);
-                        return ReservationResult.failure("No available rooms for Hotel: " + HotelId);
-                    }
+    public ReservationResult reserve(String hotelId, BigDecimal amount) {
 
-                    hotel.reserveRoom();
-                    hotelRepository.save(hotel);
+        Hotel hotel = getExistHotel(hotelId);
 
-                    log.info("Room reserved HotelId={}", HotelId);
-                    return ReservationResult.success(amount.add(hotel.getPricePerNight()));
-                })
-                .orElseGet(() -> {
-                    log.warn("Hotel not found HotelId={}", HotelId);
-                    return ReservationResult.failure("Hotel not found: " + HotelId);
-                });
+        if (hotel.getAvailableRooms() <= 0) {
+            log.warn("No rooms available hotelId={}", hotelId);
+            return ReservationResult.failure("No available rooms for Hotel: " + hotelId);
+        }
+
+        hotel.reserveRoom();
+        hotelRepository.save(hotel);
+
+        return ReservationResult.success(amount.add(hotel.getPricePerNight()));
     }
 
     @Override
     public void cancel(BookingCommand command) {
-        hotelRepository.findById(command.hotelId()).ifPresent(hotel -> {
+        Hotel hotel = getExistHotel(command.hotelId());
 
-            hotel.releaseRoom();
-            hotelRepository.save(hotel);
+        hotel.releaseRoom();
+        hotelRepository.save(hotel);
 
-            log.info("Room released orderId={}", command.orderId());
-        });
+        log.info("Room released orderId={}", command.orderId());
+    }
+
+    private Hotel getExistHotel(String hotelId) {
+        return hotelRepository.findById(hotelId).orElseThrow(
+                () -> new HotelNotFoundException(hotelId));
+
     }
 }

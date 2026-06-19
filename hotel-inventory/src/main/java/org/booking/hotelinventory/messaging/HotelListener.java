@@ -20,16 +20,13 @@ public class HotelListener {
     @RabbitListener(queues = RabbitMQConstants.HOTEL_COMMAND_QUEUE)
     public void handleReserve(BookingCommand command) {
 
-        ReservationResult result = reservationService.reserve(
-                command.hotelId(), command.amount()
-        );
+        ReservationResult result = reservationService.reserve(command.hotelId(), command.amount());
 
         if (result.success()) {
             log.info("Hotel reserve for orderId={}", command.orderId());
             publisher.handleHotelSuccess(command, "Successfully reserved room in Hotel", result.amount());
         } else
             publisher.handleHotelFailure(command, result.reason());
-
     }
 
     @RabbitListener(queues = RabbitMQConstants.HOTEL_CANCEL_QUEUE)

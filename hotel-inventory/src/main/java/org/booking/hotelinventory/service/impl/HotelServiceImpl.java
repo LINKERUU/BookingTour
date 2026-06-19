@@ -75,7 +75,7 @@ public class HotelServiceImpl implements HotelService {
     }
 
     private void applyUpdate(Hotel hotel, HotelPatchRequest request) {
-        Optional.ofNullable(hotel.getName()).ifPresent(hotel::changeName);
+        Optional.ofNullable(request.hotelName()).ifPresent(hotel::changeName);
         Optional.ofNullable(request.city()).ifPresent(hotel::changeCity);
         Optional.ofNullable(request.availableRooms()).ifPresent(hotel::changeAvailableRooms);
         Optional.ofNullable(request.pricePerNight()).ifPresent(hotel::changePricePerNight);
