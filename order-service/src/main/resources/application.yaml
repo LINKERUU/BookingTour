@@ -5,13 +5,20 @@ spring:
   application:
     name: order-service
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER}
+    password: ${RABBITMQ_PASS}
     listener:
       simple:
         default-requeue-rejected: false
   mongodb:
-    uri: mongodb://localhost:27017/order_db
+    uri: ${MONGODB_URL:mongodb://localhost:27017/order_db}
 
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_URL:http://localhost:9411/api/v2/spans}
