@@ -71,11 +71,6 @@ public class CompositionServiceImpl implements CompositionService {
         );
     }
 
-    @Override
-    public OrderInfo fetchOrderDetails(String orderId) {
-        return fetchOrder(orderId, extractHeaders());
-    }
-
     private Map<String, String> extractHeaders() {
         return Map.of(
                 "X-User-Id", servletRequest.getHeader("X-User-Id"),

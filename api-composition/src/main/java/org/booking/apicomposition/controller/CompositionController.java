@@ -2,7 +2,6 @@ package org.booking.apicomposition.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.booking.apicomposition.dto.BookingDetailsResponse;
-import org.booking.apicomposition.dto.OrderInfo;
 import org.booking.apicomposition.service.CompositionService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,10 +19,5 @@ public class CompositionController {
     @GetMapping(ORDER_ID)
     public BookingDetailsResponse getBookingDetails(@PathVariable String orderId) {
         return compositionService.getBookingDetails(orderId);
-    }
-
-    @GetMapping(ORDER_ID + "/status")
-    public OrderInfo getOrderStatus(@PathVariable String orderId) {
-        return compositionService.fetchOrderDetails(orderId);
     }
 }
