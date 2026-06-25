@@ -8,5 +8,6 @@ include(
     "flight-inventory",
     "hotel-inventory",
     "payment-service",
+    "booking-ui",
     "shared-lib"
 )

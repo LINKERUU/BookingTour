@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Главная</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<nav class="bg-blue-700 text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <a class="max-w-2xl font-bold text-2xl" href="/index">TourBooking</a>
+        <div class="flex items-center gap-6">
+            <span class="text-blue-200 text-lg" th:text="${email}"></span>
+        </div>
+    </div>
+</nav>
+
+<main class="max-w-2xl mx-auto px-4 py-12">
+
+    <div id="formStep" class="bg-white rounded-2xl shadow-lg p-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2 text-center">Бронирование тура</h1>
+        <p class="text-gray-400 mb-8 text-center">Выберите рейс и отель</p>
+
+        <div th:if="${error}"
+             class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6 text-sm">
+            <span th:text="${error}"></span>
+        </div>
+
+        <form id="bookingForm" class="space-y-6">
+
+            <div>
+                <label for="flightSelect" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Выберите рейс
+                </label>
+               <select id="flightSelect" name="flightId" required
+                       class="w-full w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                <option value="">— Выберите рейс —</option>
+                <option th:each="f : ${flights}"
+                        th:value="${f.id}"
+                        th:text="${f.flightNumber} + ' | ' + ${f.departureFrom} + ' → ' + ${f.arrivalTo} + ' | ' + ${f.price} + ' $'"
+                        th:selected="${f.id == selectedFlightId}">
+                </option>
+            </select>
+            </div>
+
+            <div>
+                <label for="hotelSelect" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Выберите отель
+                </label>
+                <select id="hotelSelect" name="hotelId" required
+                        class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    <option value="">— Выберите отель —</option>
+                    <option th:each="h : ${hotels}"
+                            th:value="${h.id}"
+                            th:text="${h.name} + ' | ' + ${h.city} + ' | ' + ${h.pricePerNight} + ' $/ночь'"
+                            th:selected="${h.id == selectedHotelId}">
+                    </option>
+                </select>
+            </div>
+
+
+            <button type="submit"
+                    class="w-full bg-blue-700 text-white py-4 rounded-xl text-lg font-bold hover:bg-blue-800 transition">
+                Забронировать
+            </button>
+        </form>
+    </div>
+
+    <div id="statusStep" class="hidden bg-white rounded-2xl shadow-lg p-8">
+
+        <h1 class="text-3xl font-bold text-gray-800 mb-1">Статус бронирования</h1>
+        <p class="text-gray-400 text-sm mb-8" id="orderIdLabel"></p>
+
+        <div class="text-center py-6">
+            <div id="statusIcon" class="text-6xl mb-4 transition-all duration-300">⏳</div>
+            <div id="statusText" class="text-2xl font-bold text-gray-700 mb-1">Создаём заказ...</div>
+            <div id="statusDesc" class="text-gray-400 text-sm">Инициализация</div>
+
+            <div class="mt-6 bg-gray-100 rounded-full h-3 max-w-sm mx-auto overflow-hidden">
+                <div id="progressBar"
+                     class="bg-blue-600 h-3 rounded-full transition-all duration-700"
+                     style="width: 5%"></div>
+            </div>
+        </div>
+
+        <div class="flex justify-around gap-2 mb-8">
+            <div class="text-center" id="step-flight">
+                <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-1 text-xl transition-all duration-300">
+                    ✈️
+                </div>
+                <p class="text-xs text-gray-400">Рейс</p>
+            </div>
+            <div class="text-center" id="step-hotel">
+                <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-1 text-xl transition-all duration-300">
+                    🏨
+                </div>
+                <p class="text-xs text-gray-400">Отель</p>
+            </div>
+            <div class="text-center" id="step-payment">
+                <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-1 text-xl transition-all duration-300">
+                    💳
+                </div>
+                <p class="text-xs text-gray-400">Оплата</p>
+            </div>
+            <div class="text-center" id="step-confirm">
+                <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-1 text-xl transition-all duration-300">
+                    ✅
+                </div>
+                <p class="text-xs text-gray-400">Готово</p>
+            </div>
+        </div>
+
+        <div id="bookingDetails" class="hidden border-t pt-6 space-y-3">
+            <h3 class="font-bold text-gray-700 mb-4">Детали бронирования</h3>
+
+            <div class="flex justify-between text-sm py-2 border-b border-gray-50">
+                <span class="text-gray-400">Рейс</span>
+                <span class="font-semibold" id="detailFlight">—</span>
+            </div>
+            <div class="flex justify-between text-sm py-2 border-b border-gray-50">
+                <span class="text-gray-400">Маршрут</span>
+                <span class="font-semibold" id="detailRoute">—</span>
+            </div>
+            <div class="flex justify-between text-sm py-2 border-b border-gray-50">
+                <span class="text-gray-400">Отель</span>
+                <span class="font-semibold" id="detailHotel">—</span>
+            </div>
+            <div class="flex justify-between text-sm py-2 border-b border-gray-50">
+                <span class="text-gray-400">Город</span>
+                <span class="font-semibold" id="detailCity">—</span>
+            </div>
+            <div class="flex justify-between pt-3">
+                <span class="font-bold text-gray-800 text-lg">Итого</span>
+                <span class="text-2xl font-bold text-blue-700" id="detailTotal">—</span>
+            </div>
+        </div>
+
+        <div id="cancelledBlock" class="hidden border-t pt-6">
+            <div class="bg-red-50 border border-red-100 rounded-xl p-4 text-center">
+                <p class="text-red-600 font-semibold">Бронирование было отменено</p>
+                <p id="cancelReasonText" class="text-red-400 text-sm mt-1">Один из шагов не был выполнен</p>
+            </div>
+        </div>
+
+        <button onclick="resetForm()"
+                class="mt-8 w-full bg-blue-700 text-white py-3 rounded-xl hover:bg-blue-800 transition font-semibold">
+            Новое бронирование
+        </button>
+    </div>
+
+</main>
+
+<script th:inline="javascript">
+
+    const MAX_ATTEMPTS = 5
+
+    const statusMap = {
+        'PENDING': {icon: '⏳', text: 'Создаём заказ...', desc: 'Инициализация', progress: 5, step: null},
+        'FLIGHT_RESERVING': {
+            icon: '✈️',
+            text: 'Резервируем рейс',
+            desc: 'Проверяем наличие мест',
+            progress: 30,
+            step: 'flight'
+        },
+        'HOTEL_RESERVING': {
+            icon: '🏨',
+            text: 'Резервируем отель',
+            desc: 'Проверяем наличие номеров',
+            progress: 60,
+            step: 'hotel'
+        },
+        'PAYMENT_PROCESSING': {
+            icon: '💳',
+            text: 'Обрабатываем оплату',
+            desc: 'Списываем средства',
+            progress: 85,
+            step: 'payment'
+        },
+        'CONFIRMED': {icon: '✅', text: 'Подтверждено!', desc: 'Всё готово', progress: 100, step: 'confirm'},
+        'CANCELLED': {icon: '❌', text: 'Отменено', desc: 'Что-то пошло не так', progress: 0, step: null}
+    };
+
+    const stepOrder = ['flight', 'hotel', 'payment', 'confirm'];
+
+    function updateUI(status) {
+        const cfg = statusMap[status] || statusMap['PENDING'];
+
+        document.getElementById('statusIcon').textContent = cfg.icon;
+        document.getElementById('statusText').textContent = cfg.text;
+        document.getElementById('statusDesc').textContent = cfg.desc;
+
+        const bar = document.getElementById('progressBar');
+        bar.style.width = cfg.progress + '%';
+        bar.className = 'h-3 rounded-full transition-all duration-700 ' +
+            (status === 'CONFIRMED' ? 'bg-green-500' :
+                status === 'CANCELLED' ? 'bg-red-400' : 'bg-blue-600');
+
+        const currentIdx = cfg.step ? stepOrder.indexOf(cfg.step) : -1;
+        stepOrder.forEach((step, idx) => {
+            const el = document.getElementById('step-' + step)?.querySelector('div');
+            if (!el) return;
+            if (idx < currentIdx) {
+                el.className = 'w-12 h-12 rounded-full bg-green-100 ring-2 ring-green-400 flex items-center justify-center mx-auto mb-1 text-xl transition-all duration-300';
+            } else if (idx === currentIdx) {
+                el.className = 'w-12 h-12 rounded-full bg-blue-100 ring-2 ring-blue-500 flex items-center justify-center mx-auto mb-1 text-xl transition-all duration-300';
+            } else {
+                el.className = 'w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-1 text-xl transition-all duration-300';
+            }
+        });
+    }
+
+    async function loadDetails(orderId) {
+        try {
+            const res = await fetch(`/composition/${orderId}`);
+            if (!res.ok) return;
+            const b = await res.json();
+
+            console.log(b)
+
+            document.getElementById('detailFlight').textContent = b.flight?.flightNumber ?? '—';
+            document.getElementById('detailRoute').textContent = (b.flight?.departureFrom ?? '') + ' → ' + (b.flight?.arrivalTo ?? '');
+            document.getElementById('detailHotel').textContent = b.hotel?.name ?? '—';
+            document.getElementById('detailCity').textContent = b.hotel?.city ?? '—';
+            document.getElementById('detailTotal').textContent = (b.totalAmount ?? b.amount ?? '—') + ' $';
+            document.getElementById('bookingDetails').classList.remove('hidden');
+        } catch (e) {
+            console.error('Failed to load details', e);
+        }
+    }
+
+    async function pollStatus(orderId, attempt = 0) {
+
+        if (attempt >= MAX_ATTEMPTS) {
+            showFatalError('Превышено количество попыток ожидания ответа от шлюза API.');
+            return;
+        }
+
+        try {
+            const res = await fetch(`/orders/${orderId}`);
+            if (!res.ok) {
+                setTimeout(() => pollStatus(orderId, attempt + 1), 500);
+                return;
+            }
+
+            const data = await res.json();
+            const status = data.status;
+            updateUI(status);
+
+            if (status === 'CONFIRMED') {
+                await loadDetails(orderId);
+                return;
+            }
+            if (status === 'CANCELLED') {
+                document.getElementById('cancelReasonText').textContent = data.reason || 'Один из шагов Saga-транзакции не был выполнен';
+                document.getElementById('cancelledBlock').classList.remove('hidden');
+                return;
+            }
+
+            setTimeout(() => pollStatus(orderId, 0), 1500);
+
+        } catch (e) {
+            setTimeout(() => pollStatus(orderId, attempt + 1), 500);
+        }
+    }
+
+    document.getElementById('bookingForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const flightId = document.getElementById('flightSelect').value;
+        const hotelId = document.getElementById('hotelSelect').value;
+
+        if (!flightId || !hotelId) return;
+
+        document.getElementById('formStep').classList.add('hidden');
+        document.getElementById('statusStep').classList.remove('hidden');
+        updateUI('PENDING');
+
+        try {
+            const res = await fetch('/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ flightId, hotelId })
+            });
+
+            const order = await res.json();
+            document.getElementById('orderIdLabel').textContent = 'ID: ' + order.id;
+
+            pollStatus(order.id);
+
+        } catch (err) {
+            console.error(err);
+            updateUI('CANCELLED');
+            document.getElementById('cancelledBlock').classList.remove('hidden');
+        }
+    });
+
+    function resetForm() {
+        document.getElementById('statusStep').classList.add('hidden');
+        document.getElementById('formStep').classList.remove('hidden');
+        document.getElementById('bookingDetails').classList.add('hidden');
+        document.getElementById('cancelledBlock').classList.add('hidden');
+        document.getElementById('bookingForm').reset();
+        updateUI('PENDING');
+    }
+</script>
+
+</body>
+</html>
