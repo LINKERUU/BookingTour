@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: booking-ui
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+
+server:
+  port: 8090
+
+services:
+  api-gateway: ${GATEWAY_URL}
