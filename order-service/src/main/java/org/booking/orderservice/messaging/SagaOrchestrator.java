@@ -8,8 +8,8 @@ import org.booking.orderservice.service.OrderStateService;
 import org.booking.sharedlib.messaging.event.BookingCommand;
 import org.booking.sharedlib.messaging.event.BookingReply;
 import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
+
 
 @Slf4j
 @Component
@@ -41,7 +41,7 @@ public class SagaOrchestrator {
 
     public void handleFlightFailure(BookingReply reply) {
         log.info("Canceled Flight reply for id: {}", reply.orderId());
-        orderStateService.cancel(reply.orderId());
+        orderStateService.cancel(reply.orderId(),reply.reason());
     }
 
     public void handleHotelSuccess(BookingReply reply) {
@@ -57,7 +57,7 @@ public class SagaOrchestrator {
 
     public void handleHotelFailure(BookingReply reply) {
         log.info("Canceled Hotel reply for id: {}", reply.orderId());
-        orderStateService.cancel(reply.orderId());
+        orderStateService.cancel(reply.orderId(),reply.reason());
 
         BookingCommand compensation = orderMapper.toBookingCommand(orderStateService.getOrder(reply.orderId()));
 
@@ -75,7 +75,7 @@ public class SagaOrchestrator {
 
     public void handlePaymentFailure(BookingReply reply) {
         log.info("Canceled Payment reply for id: {}", reply.orderId());
-        orderStateService.cancel(reply.orderId());
+        orderStateService.cancel(reply.orderId(),reply.reason());
 
         BookingCommand compensation = orderMapper.toBookingCommand(orderStateService.getOrder(reply.orderId()));
 

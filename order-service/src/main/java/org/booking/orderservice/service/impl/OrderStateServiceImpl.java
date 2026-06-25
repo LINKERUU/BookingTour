@@ -40,8 +40,10 @@ public class OrderStateServiceImpl implements OrderStateService {
     }
 
     @Override
-    public void cancel(String orderId) {
+    public void cancel(String orderId, String reason) {
         Order order = getOrder(orderId);
+
+        order.changeReason(reason);
         order.changeStatus(OrderStatus.CANCELLED);
 
         orderRepository.save(order);

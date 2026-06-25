@@ -13,5 +13,5 @@ public interface OrderStateService {
 
     void confirm(String orderId, BigDecimal amount);
 
-    void cancel(String orderId);
+    void cancel(String orderId, String reason);
 }
