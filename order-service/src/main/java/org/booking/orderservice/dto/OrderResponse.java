@@ -12,6 +12,7 @@ public record OrderResponse(
         String hotelId,
         BigDecimal amount,
         OrderStatus status,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String reason
 ) {
 }

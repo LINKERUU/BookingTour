@@ -6,6 +6,8 @@ import org.booking.sharedlib.messaging.event.BookingReply;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
+import static java.lang.Thread.sleep;
+
 @Component
 @RequiredArgsConstructor
 public class BookingReplyListener {
@@ -13,7 +15,8 @@ public class BookingReplyListener {
     private final SagaOrchestrator orchestrator;
 
     @RabbitListener(queues = RabbitMQConstants.FLIGHT_REPLY_QUEUE)
-    public void handleFlightReply(BookingReply reply) {
+    public void handleFlightReply(BookingReply reply) throws InterruptedException {
+        sleep(2000);
         if (reply.success())
             orchestrator.handleFlightSuccess(reply);
         else
@@ -21,7 +24,8 @@ public class BookingReplyListener {
     }
 
     @RabbitListener(queues = RabbitMQConstants.HOTEL_REPLY_QUEUE)
-    public void handleHotelReply(BookingReply reply) {
+    public void handleHotelReply(BookingReply reply) throws InterruptedException {
+        sleep(2000);
         if (reply.success())
             orchestrator.handleHotelSuccess(reply);
         else
@@ -29,7 +33,8 @@ public class BookingReplyListener {
     }
 
     @RabbitListener(queues = RabbitMQConstants.PAYMENT_REPLY_QUEUE)
-    public void handlePaymentReply(BookingReply reply) {
+    public void handlePaymentReply(BookingReply reply) throws InterruptedException {
+        sleep(2000);
         if (reply.success())
             orchestrator.handlePaymentSuccess(reply);
         else

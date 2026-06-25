@@ -23,6 +23,7 @@ public class Order {
     private OrderStatus status;
     private BigDecimal amount;
     private LocalDateTime createdAt;
+    private String reason;
 
 
     public Order(String userId, String flightId, String hotelId) {
@@ -32,10 +33,6 @@ public class Order {
         this.status = OrderStatus.PENDING;
         this.amount = BigDecimal.ZERO;
         this.createdAt = LocalDateTime.now();
-    }
-
-    public void changeUserId(String userId) {
-        this.userId = userId;
     }
 
     public void changeFlightId(String flightId) {
@@ -52,6 +49,10 @@ public class Order {
 
     public void changeAmount(BigDecimal amount) {
         this.amount = amount;
+    }
+
+    public void changeReason(String reason) {
+        this.reason = reason;
     }
 }
 

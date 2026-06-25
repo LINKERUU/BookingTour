@@ -20,25 +20,30 @@ public class DeadLetterHandler {
     @RabbitListener(queues = RabbitMQConstants.DEAD_LETTER_QUEUE)
     public void handleDeadLetter(BookingCommand command) {
         Order order = orderStateService.getOrder(command.orderId());
+        String cancelReason;
 
         switch (order.getStatus()) {
-
             case PAYMENT_PROCESSING -> {
-                log.warn("Order has been cancelled on Payment reservation step for order id: {}", command.orderId());
+                cancelReason = "Таймаут или критическая ошибка на этапе оплаты. Сага отменена.";
+                log.warn("DLQ: {}, компенсируем Flight и Hotel", cancelReason);
                 commandPublisher.cancelFlight(command);
                 commandPublisher.cancelHotel(command);
             }
-            case HOTEL_RESERVING ->{
-                log.warn("Order has been cancelled on Hotel reservation step for order id: {}", command.orderId());
+            case HOTEL_RESERVING -> {
+                cancelReason = "Сервис отелей недоступен или вернул ошибку. Сага отменена.";
+                log.warn("DLQ: {}, компенсируем Flight", cancelReason);
                 commandPublisher.cancelFlight(command);
             }
-
-            case FLIGHT_RESERVING ->
-                    log.warn("Order has been cancelled on Flight reservation step for order id: {}", command.orderId());
-
-            default -> log.warn("Unknown Order Status for order id: {}", command.orderId());
+            case FLIGHT_RESERVING -> {
+                cancelReason = "Сервис авиарейсов недоступен. Заказ отменен.";
+                log.warn("DLQ: {}", cancelReason);
+            }
+            default -> {
+                cancelReason = "Неизвестная ошибка при обработке шагов Саги.";
+                log.warn("DLQ: Unknown Order Status {} for order id: {}", order.getStatus(), command.orderId());
+            }
         }
 
-        orderStateService.cancel(order.getId());
+        orderStateService.cancel(order.getId(), cancelReason);
     }
 }
