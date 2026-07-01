@@ -71,7 +71,7 @@ public class HotelServiceImpl implements HotelService {
     }
 
     private Hotel getExistingHotel(String id) {
-        return hotelRepository.findById(id).orElseThrow(() -> new HotelNotFoundException(id));
+        return hotelRepository.findById(id).orElseThrow(HotelNotFoundException::new);
     }
 
     private void applyUpdate(Hotel hotel, HotelPatchRequest request) {

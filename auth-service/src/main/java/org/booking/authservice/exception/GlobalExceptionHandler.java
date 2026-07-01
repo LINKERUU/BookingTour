@@ -72,13 +72,15 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(InvalidCredentialsException.class)
+    @ExceptionHandler({
+            InvalidCredentialsException.class,
+            InvalidAmount.class})
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleInvalidCredentialsException(
-            InvalidCredentialsException ex,
+    public ErrorResponse handleConflictException(
+            BaseException ex,
             HttpServletRequest request
     ) {
-        log.warn("Invalid Credentials: {}", ex.getMessage());
+        log.warn("{}", ex.getMessage());
 
         return new ErrorResponse(
                 ex.getErrorCode(),

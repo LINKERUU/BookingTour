@@ -25,8 +25,14 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @ResponseStatus(HttpStatus.ACCEPTED)
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
     }
 
+    @PostMapping("/admin")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public AuthResponse promoteToAdmin(@RequestParam("userId") String userId) {
+        return authService.promoteToAdmin(userId);
+    }
 }

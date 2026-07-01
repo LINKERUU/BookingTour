@@ -12,5 +12,7 @@ dependencies {
     implementation("org.mapstruct:mapstruct:1.6.3")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
     implementation("jakarta.validation:jakarta.validation-api:3.0.2")
+    implementation("org.springframework.amqp:spring-rabbit")
+    implementation ("org.springframework.boot:spring-boot-starter-amqp")
     implementation(project(":shared-lib"))
 }

@@ -2,6 +2,7 @@ package org.booking.paymentservice.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.booking.paymentservice.exception.custom.PaymentAlreadyProcessed;
 import org.booking.paymentservice.exception.custom.PaymentNotFoundException;
 import org.booking.paymentservice.exception.custom.ServiceUnavailableException;
 import org.booking.paymentservice.exception.dto.ErrorCode;
@@ -68,6 +69,23 @@ public class GlobalExceptionHandler {
                 ErrorCode.FORBIDDEN,
                 "You don't have permission to access this resource",
                 HttpStatus.FORBIDDEN.value(),
+                request.getRequestURI(),
+                LocalDateTime.now()
+        );
+    }
+
+    @ExceptionHandler(PaymentAlreadyProcessed.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handlePaymentAlreadyProcessed(
+            PaymentAlreadyProcessed ex,
+            HttpServletRequest request
+    ) {
+        log.warn("{}", ex.getMessage());
+
+        return new ErrorResponse(
+                ex.getErrorCode(),
+                ex.getMessage(),
+                HttpStatus.CONFLICT.value(),
                 request.getRequestURI(),
                 LocalDateTime.now()
         );

@@ -14,7 +14,5 @@ public interface PaymentService {
 
     void deletePaymentById(String id);
 
-    PaymentResponse cancelPayment(String id);
-
     PaymentResponse getByOrderId(String orderId);
 }

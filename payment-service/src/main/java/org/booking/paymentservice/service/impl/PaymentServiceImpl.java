@@ -8,7 +8,6 @@ import org.booking.paymentservice.dto.PaymentResponse;
 import org.booking.paymentservice.exception.custom.PaymentNotFoundException;
 import org.booking.paymentservice.mapper.PaymentMapper;
 import org.booking.paymentservice.model.Payment;
-import org.booking.paymentservice.model.enums.PaymentStatus;
 import org.booking.paymentservice.repository.PaymentRepository;
 import org.booking.paymentservice.service.PaymentService;
 import org.springframework.stereotype.Service;
@@ -54,21 +53,6 @@ public class PaymentServiceImpl implements PaymentService {
         log.info("Payment with id {} has been deleted", id);
 
         paymentRepository.deleteById(id);
-    }
-
-    @Override
-    public PaymentResponse cancelPayment(String id) {
-        Payment payment = getExistingPayment(id);
-
-        if (payment.getStatus() == PaymentStatus.COMPLETED) {
-            payment.changeStatus(PaymentStatus.REFUNDED);
-            log.info("Payment with id {} has been refunded", id);
-            paymentRepository.save(payment);
-        }
-
-        log.info("Payment with id {} couldn't be refunded", id);
-
-        return paymentMapper.toResponse(payment);
     }
 
     @Override

@@ -75,7 +75,7 @@ public class FlightServiceImpl implements FlightService {
     }
 
     private Flight getExistingFlight(String id) {
-        return flightRepository.findById(id).orElseThrow(() -> new FlightNotFoundException(id));
+        return flightRepository.findById(id).orElseThrow(FlightNotFoundException::new);
     }
 
     private void applyUpdate(Flight flight, FlightPatchRequest request) {

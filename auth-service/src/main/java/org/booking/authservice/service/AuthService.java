@@ -9,4 +9,6 @@ public interface AuthService {
     AuthResponse login(LoginRequest user);
 
     AuthResponse register(RegisterRequest user);
+
+    AuthResponse promoteToAdmin(String userId);
 }

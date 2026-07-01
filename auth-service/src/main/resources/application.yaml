@@ -4,6 +4,14 @@ server:
 spring:
   application:
     name: auth-service
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER}
+    password: ${RABBITMQ_PASS}
+    listener:
+      simple:
+        default-requeue-rejected: false
   mongodb:
     uri: ${MONGODB_URL:mongodb://localhost:27017/auth_db}
   jwt:

@@ -7,11 +7,11 @@ import java.math.BigDecimal;
 
 public interface OrderStateService {
 
+    Order updateOrder(String orderId, BigDecimal price, OrderStatus expectedStatus, OrderStatus newStatus);
+
+    Order cancel(String orderId, String reason);
+
+    void updateOrderStatus(String orderId, OrderStatus newStatus);
+
     Order getOrder(String orderId);
-
-    void changeStatus(String orderId, BigDecimal amount, OrderStatus orderStatus);
-
-    void confirm(String orderId, BigDecimal amount);
-
-    void cancel(String orderId, String reason);
 }

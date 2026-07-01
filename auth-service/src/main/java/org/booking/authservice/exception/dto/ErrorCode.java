@@ -2,6 +2,7 @@ package org.booking.authservice.exception.dto;
 
 public enum ErrorCode {
     USER_NOT_FOUND,
+    INVALID_AMOUNT_WITHDRAW,
     SERVICE_UNAVAILABLE,
     INVALID_CREDENTIALS,
     EMAIL_ALREADY_EXISTS,

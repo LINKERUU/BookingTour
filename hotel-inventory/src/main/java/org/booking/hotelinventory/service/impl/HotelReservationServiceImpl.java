@@ -3,14 +3,15 @@ package org.booking.hotelinventory.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booking.hotelinventory.exception.custom.HotelNotFoundException;
+import org.booking.hotelinventory.exception.custom.NoAvailableRoomsException;
 import org.booking.hotelinventory.model.Hotel;
 import org.booking.hotelinventory.repository.HotelRepository;
 import org.booking.hotelinventory.service.HotelReservationService;
 import org.booking.sharedlib.messaging.event.BookingCommand;
-import org.booking.sharedlib.messaging.result.ReservationResult;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+
 
 @Slf4j
 @Service
@@ -20,19 +21,19 @@ public class HotelReservationServiceImpl implements HotelReservationService {
     private final HotelRepository hotelRepository;
 
     @Override
-    public ReservationResult reserve(String hotelId, BigDecimal amount) {
+    public BigDecimal reserve(String hotelId) {
 
         Hotel hotel = getExistHotel(hotelId);
 
         if (hotel.getAvailableRooms() <= 0) {
             log.warn("No rooms available hotelId={}", hotelId);
-            return ReservationResult.failure("No available rooms for Hotel: " + hotelId);
+            throw new NoAvailableRoomsException();
         }
 
         hotel.reserveRoom();
         hotelRepository.save(hotel);
 
-        return ReservationResult.success(amount.add(hotel.getPricePerNight()));
+        return hotel.getPricePerNight();
     }
 
     @Override
@@ -46,8 +47,7 @@ public class HotelReservationServiceImpl implements HotelReservationService {
     }
 
     private Hotel getExistHotel(String hotelId) {
-        return hotelRepository.findById(hotelId).orElseThrow(
-                () -> new HotelNotFoundException(hotelId));
+        return hotelRepository.findById(hotelId).orElseThrow(HotelNotFoundException::new);
 
     }
 }

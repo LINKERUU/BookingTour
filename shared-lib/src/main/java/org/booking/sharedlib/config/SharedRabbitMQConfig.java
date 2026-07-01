@@ -7,43 +7,14 @@ import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import static org.booking.sharedlib.config.RabbitMQConstants.*;
 
 @Configuration
 public class SharedRabbitMQConfig {
-
-    @Bean
-    public Queue flightCancelQueue() {
-        return QueueBuilder.durable(FLIGHT_CANCEL_QUEUE).build();
-    }
-
-    @Bean
-    public Binding flightCancelBinding() {
-        return BindingBuilder.bind(flightCancelQueue())
-                .to(bookingExchange()).with(FLIGHT_CANCEL_KEY);
-    }
-
-    @Bean
-    public Queue hotelCancelQueue() {
-        return QueueBuilder.durable(HOTEL_CANCEL_QUEUE).build();
-    }
-
-    @Bean
-    public Binding hotelCancelBinding() {
-        return BindingBuilder.bind(hotelCancelQueue())
-                .to(bookingExchange()).with(HOTEL_CANCEL_KEY);
-    }
-
-    @Bean
-    public Queue paymentCancelQueue() {
-        return QueueBuilder.durable(PAYMENT_CANCEL_QUEUE).build();
-    }
-
-    @Bean
-    public Binding paymentCancelBinding() {
-        return BindingBuilder.bind(paymentCancelQueue())
-                .to(bookingExchange()).with(PAYMENT_CANCEL_KEY);
-    }
 
     @Bean
     public TopicExchange bookingExchange() {
@@ -62,85 +33,37 @@ public class SharedRabbitMQConfig {
 
     @Bean
     public Binding deadLetterBinding() {
-        return BindingBuilder
-                .bind(deadLetterQueue())
-                .to(deadLetterExchange())
-                .with(DEAD_LETTER_KEY);
+        return BindingBuilder.bind(deadLetterQueue()).to(deadLetterExchange()).with(DEAD_LETTER_KEY);
     }
 
     @Bean
-    public Queue paymentCommandQueue() {
-        return QueueBuilder.durable(PAYMENT_COMMAND_QUEUE)
-                .withArgument("x-dead-letter-exchange", DEAD_LETTER_EXCHANGE)
-                .withArgument("x-dead-letter-routing-key", DEAD_LETTER_KEY)
-                .build();
+    public Declarables commandQueues() {
+        List<Declarable> all = new ArrayList<>();
+        all.addAll(createCommandQueueAndBinding(FLIGHT_COMMAND_QUEUE, FLIGHT_COMMAND_KEY));
+        all.addAll(createCommandQueueAndBinding(HOTEL_COMMAND_QUEUE, HOTEL_COMMAND_KEY));
+        all.addAll(createCommandQueueAndBinding(PAYMENT_COMMAND_QUEUE, PAYMENT_COMMAND_KEY));
+        all.addAll(createCommandQueueAndBinding(USER_COMMAND_QUEUE, USER_COMMAND_KEY));
+        return new Declarables(all);
     }
 
     @Bean
-    public Binding paymentCommandBinding() {
-        return BindingBuilder.bind(paymentCommandQueue())
-                .to(bookingExchange()).with(PAYMENT_COMMAND_KEY);
+    public Declarables replyQueues() {
+        return createBeansQueues(Map.of(
+                FLIGHT_REPLY_QUEUE, FLIGHT_REPLY_KEY,
+                HOTEL_REPLY_QUEUE, HOTEL_REPLY_KEY,
+                PAYMENT_REPLY_QUEUE, PAYMENT_REPLY_KEY,
+                USER_REPLY_QUEUE, USER_REPLY_KEY
+        ));
     }
 
     @Bean
-    public Queue flightCommandQueue() {
-        return QueueBuilder.durable(FLIGHT_COMMAND_QUEUE)
-                .withArgument("x-dead-letter-exchange", DEAD_LETTER_EXCHANGE)
-                .withArgument("x-dead-letter-routing-key", DEAD_LETTER_KEY)
-                .build();
-    }
-
-    @Bean
-    public Binding flightCommandBinding() {
-        return BindingBuilder.bind(flightCommandQueue())
-                .to(bookingExchange()).with(FLIGHT_COMMAND_KEY);
-    }
-
-    @Bean
-    public Queue hotelCommandQueue() {
-        return QueueBuilder.durable(HOTEL_COMMAND_QUEUE)
-                .withArgument("x-dead-letter-exchange", DEAD_LETTER_EXCHANGE)
-                .withArgument("x-dead-letter-routing-key", DEAD_LETTER_KEY)
-                .build();
-    }
-
-    @Bean
-    public Binding hotelCommandBinding() {
-        return BindingBuilder.bind(hotelCommandQueue())
-                .to(bookingExchange()).with(HOTEL_COMMAND_KEY);
-    }
-
-    @Bean
-    public Queue paymentReplyQueue() {
-        return QueueBuilder.durable(PAYMENT_REPLY_QUEUE).build();
-    }
-
-    @Bean
-    public Binding paymentReplyBinding() {
-        return BindingBuilder.bind(paymentReplyQueue())
-                .to(bookingExchange()).with(PAYMENT_REPLY_KEY);
-    }
-
-    @Bean
-    public Queue flightReplyQueue() {
-        return QueueBuilder.durable(FLIGHT_REPLY_QUEUE).build();
-    }
-
-    @Bean
-    public Binding flightReplyBinding() {
-        return BindingBuilder.bind(flightReplyQueue())
-                .to(bookingExchange()).with(FLIGHT_REPLY_KEY);
-    }
-
-    @Bean
-    public Queue hotelReplyQueue() {
-        return QueueBuilder.durable(HOTEL_REPLY_QUEUE).build();
-    }
-
-    @Bean
-    public Binding hotelReplyBinding() {
-        return BindingBuilder.bind(hotelReplyQueue())
-                .to(bookingExchange()).with(HOTEL_REPLY_KEY);
+    public Declarables cancelQueues() {
+        return createBeansQueues(Map.of(
+                FLIGHT_CANCEL_QUEUE, FLIGHT_CANCEL_KEY,
+                HOTEL_CANCEL_QUEUE, HOTEL_CANCEL_KEY,
+                PAYMENT_CANCEL_QUEUE, PAYMENT_CANCEL_KEY,
+                USER_CANCEL_QUEUE, USER_CANCEL_KEY
+        ));
     }
 
     @Bean
@@ -155,5 +78,27 @@ public class SharedRabbitMQConfig {
         return template;
     }
 
+    private Declarables createBeansQueues(Map<String, String> queues) {
+        return new Declarables(
+                queues.entrySet().stream()
+                        .flatMap(queue -> createStandardQueueAndBinding(queue.getKey(),queue.getValue()).stream())
+                        .toList()
+        );
+    }
+
+    private List<Declarable> createStandardQueueAndBinding(String queueName, String routingKey) {
+        Queue queue = QueueBuilder.durable(queueName).build();
+        Binding binding = BindingBuilder.bind(queue).to(bookingExchange()).with(routingKey);
+        return List.of(queue, binding);
+    }
+
+    private List<Declarable> createCommandQueueAndBinding(String queueName, String routingKey) {
+        Queue queue = QueueBuilder.durable(queueName)
+                .withArgument("x-dead-letter-exchange", DEAD_LETTER_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", DEAD_LETTER_KEY)
+                .build();
+        Binding binding = BindingBuilder.bind(queue).to(bookingExchange()).with(routingKey);
+        return List.of(queue, binding);
+    }
 
 }

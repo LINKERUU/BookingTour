@@ -19,6 +19,7 @@ public class DeadLetterHandler {
 
     @RabbitListener(queues = RabbitMQConstants.DEAD_LETTER_QUEUE)
     public void handleDeadLetter(BookingCommand command) {
+
         Order order = orderStateService.getOrder(command.orderId());
         String cancelReason;
 
@@ -32,10 +33,12 @@ public class DeadLetterHandler {
             case HOTEL_RESERVING -> {
                 cancelReason = "Сервис отелей недоступен или вернул ошибку. Сага отменена.";
                 log.warn("DLQ: {}, компенсируем Flight", cancelReason);
+                commandPublisher.cancelHotel(command);
                 commandPublisher.cancelFlight(command);
             }
             case FLIGHT_RESERVING -> {
                 cancelReason = "Сервис авиарейсов недоступен. Заказ отменен.";
+                commandPublisher.cancelFlight(command);
                 log.warn("DLQ: {}", cancelReason);
             }
             default -> {

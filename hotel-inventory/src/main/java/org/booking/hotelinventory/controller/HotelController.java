@@ -34,6 +34,7 @@ public class HotelController {
     }
 
     @PatchMapping(ID)
+    @ResponseStatus(HttpStatus.ACCEPTED)
     public HotelResponse updateHotelById(@PathVariable String id, @Valid @RequestBody HotelPatchRequest request) {
         return hotelService.updateHotel(id, request);
     }
@@ -46,8 +47,8 @@ public class HotelController {
 
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
-    public HotelResponse searchHotelByArrivalAndDeparture(@RequestParam String hotel) {
-        return hotelService.searchHotels(hotel);
+    public HotelResponse searchHotelByName(@RequestParam String name) {
+        return hotelService.searchHotels(name);
     }
 
     @GetMapping

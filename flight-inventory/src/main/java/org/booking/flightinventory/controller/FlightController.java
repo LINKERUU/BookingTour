@@ -29,12 +29,13 @@ public class FlightController {
 
     @GetMapping(ID)
     @ResponseStatus(HttpStatus.OK)
-    public FlightResponse getFlightById(@PathVariable String id)
+    public FlightResponse getFlight(@PathVariable String id)
     {
         return flightService.getFlightById(id);
     }
 
     @PatchMapping(ID)
+    @ResponseStatus(HttpStatus.ACCEPTED)
     public FlightResponse updateFlightById(@PathVariable String id ,@Valid @RequestBody FlightPatchRequest request) {
         return flightService.updateFlight(id,request);
     }
@@ -55,7 +56,7 @@ public class FlightController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<FlightResponse> searchFlights()
+    public List<FlightResponse> getAllFlights()
     {
         return flightService.allFlights();
     }

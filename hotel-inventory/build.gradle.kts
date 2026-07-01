@@ -17,3 +17,7 @@ dependencies {
     implementation ("org.springframework.boot:spring-boot-starter-amqp")
     implementation(project(":shared-lib"))
 }
+
+tasks.test {
+    useJUnitPlatform()
+}

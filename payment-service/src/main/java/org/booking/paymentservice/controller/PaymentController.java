@@ -45,12 +45,6 @@ public class PaymentController {
         paymentService.deletePaymentById(id);
     }
 
-    @PostMapping(ID + "/refund")
-    @ResponseStatus(HttpStatus.CREATED)
-    public PaymentResponse refundPayment(@PathVariable String id) {
-        return paymentService.cancelPayment(id);
-    }
-
     @GetMapping("/order/{orderId}")
     @ResponseStatus(HttpStatus.OK)
     public PaymentResponse getByOrderId(@PathVariable String orderId) {

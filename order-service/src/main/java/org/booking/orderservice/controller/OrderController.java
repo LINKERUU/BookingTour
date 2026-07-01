@@ -16,21 +16,23 @@ public class OrderController {
 
     private final OrderService orderService;
     private static final String ID = "/{id}";
+    private static final String USER_HEADER = "X-User-Id";
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public OrderResponse createOrder(@Valid @RequestBody OrderRequest orderRequest,
-                                     @RequestHeader("X-User-Id") String userId) {
+                                     @RequestHeader(USER_HEADER) String userId) {
         return orderService.createOrder(orderRequest, userId);
     }
 
     @GetMapping(ID)
     @ResponseStatus(HttpStatus.OK)
-    public OrderResponse findOrderById(@PathVariable String id) {
+    public OrderResponse getOrder(@PathVariable String id) {
         return orderService.getOrderById(id);
     }
 
     @PatchMapping(ID)
+    @ResponseStatus(HttpStatus.ACCEPTED)
     public OrderResponse updateOrder(@PathVariable String id, @Valid @RequestBody OrderPatchRequest orderRequest) {
         return orderService.updateOrder(id, orderRequest);
     }

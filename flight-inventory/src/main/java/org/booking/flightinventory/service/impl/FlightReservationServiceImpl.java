@@ -2,13 +2,16 @@ package org.booking.flightinventory.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.booking.flightinventory.exception.custom.FlightNotFoundException;
+import org.booking.flightinventory.exception.custom.NoAvailableSeatsException;
+import org.booking.flightinventory.model.Flight;
 import org.booking.flightinventory.repository.FlightRepository;
 import org.booking.flightinventory.service.FlightReservationService;
 import org.booking.sharedlib.messaging.event.BookingCommand;
-import org.booking.sharedlib.messaging.result.ReservationResult;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+
 
 @Slf4j
 @Service
@@ -18,36 +21,32 @@ public class FlightReservationServiceImpl implements FlightReservationService {
     private final FlightRepository flightRepository;
 
     @Override
-    public ReservationResult reserve(String flightId, BigDecimal amount) {
-        return flightRepository.findById(flightId)
-                .map(flight -> {
-                    if (flight.getAvailableSeats() <= 0) {
-                        log.warn("No seats available flightId={}", flightId);
-                        return ReservationResult.failure("No available seats for flight: " + flightId);
-                    }
+    public BigDecimal reserve(String flightId) {
 
-                    flight.reserveSeat();
-                    flightRepository.save(flight);
+        Flight flight = getFlight(flightId);
 
-                    log.info("Seat reserved flightId={}", flightId);
+        if (flight.getAvailableSeats() <= 0) {
+            throw new NoAvailableSeatsException();
+        }
 
-                    return ReservationResult.success(amount.add(flight.getPrice()));
-                })
-                .orElseGet(() -> {
+        flight.reserveSeat();
+        flightRepository.save(flight);
 
-                    log.warn("Flight not found flightId={}", flightId);
-                    return ReservationResult.failure("Flight not found: " + flightId);
-                });
+        return flight.getPrice();
     }
 
     @Override
     public void cancel(BookingCommand command) {
-        flightRepository.findById(command.flightId()).ifPresent(flight -> {
+        Flight flight= getFlight(command.flightId());
 
-            flight.releaseSeat();
-            flightRepository.save(flight);
+        flight.releaseSeat();
+        flightRepository.save(flight);
 
-            log.info("Seat released orderId={}", command.orderId());
-        });
+        log.info("Seat released orderId={}", command.orderId());
+    }
+
+    private Flight getFlight(String flightId) {
+        return flightRepository.findById(flightId)
+                .orElseThrow(FlightNotFoundException::new);
     }
 }

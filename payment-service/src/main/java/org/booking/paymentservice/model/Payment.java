@@ -1,6 +1,5 @@
 package org.booking.paymentservice.model;
 
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,10 +33,6 @@ public class Payment {
 
     public void changeOrderId(String orderId) {
         this.orderId = orderId;
-    }
-
-    public void changeUserId(String userId) {
-        this.userId = userId;
     }
 
     public void changeAmount(BigDecimal amount) {

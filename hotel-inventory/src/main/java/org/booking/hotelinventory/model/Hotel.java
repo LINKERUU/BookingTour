@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
@@ -13,6 +14,9 @@ import java.math.BigDecimal;
 @Document(collection = "hotels")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Hotel {
+
+    @Version
+    private Long version;
 
     @Id
     private String id;

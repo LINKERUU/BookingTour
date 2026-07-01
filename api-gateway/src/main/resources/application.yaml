@@ -36,6 +36,11 @@ spring:
               predicates:
                 - Path=/api/auth/**
 
+            - id: user-service-route
+              uri: ${AUTH_SERVICE_URL}
+              predicates:
+                - Path=/api/users/**
+
             - id: api-composition-route
               uri: ${API_COMPOSITION_URL}
               predicates:

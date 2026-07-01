@@ -2,10 +2,12 @@ package org.booking.paymentservice.messaging;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.booking.paymentservice.exception.custom.PaymentAlreadyProcessed;
+import org.booking.paymentservice.exception.custom.PaymentNotFoundException;
 import org.booking.paymentservice.service.PaymentProcessService;
 import org.booking.sharedlib.config.RabbitMQConstants;
 import org.booking.sharedlib.messaging.event.BookingCommand;
-import org.booking.sharedlib.messaging.result.ReservationResult;
+import org.booking.sharedlib.messaging.event.BookingReply;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
@@ -20,23 +22,43 @@ public class PaymentListener {
     @RabbitListener(queues = RabbitMQConstants.PAYMENT_COMMAND_QUEUE)
     public void handlePayment(BookingCommand command) {
 
-        ReservationResult result = processService.processPayment(command);
+        try {
+            processService.createPayment(command);
+            publisher.publishBalance(command, RabbitMQConstants.USER_COMMAND_KEY);
+        }
+        catch (PaymentAlreadyProcessed ex) {
+            publisher.handlePaymentFailure(command.orderId(), ex.getMessage());
+        }
+    }
 
-        if (result.success()) {
+    @RabbitListener(queues = RabbitMQConstants.USER_REPLY_QUEUE)
+    public void handleUserBalanceReply(BookingReply reply) {
 
-            log.info("Payment successful for orderId={}", command.orderId());
-            publisher.handlePaymentSuccess(command, "Payment completed", result.amount());
-        } else
-            publisher.handlePaymentFailure(command, result.reason());
+        try {
+            if (reply.success()) {
+                log.info("User balance deducted. Completing payment for orderId={}", reply.orderId());
 
+                processService.complete(reply.orderId());
+                publisher.handlePaymentSuccess(reply.orderId(), reply.amount());
+            } else {
+                log.warn("User balance deduction failed for orderId={}: {}", reply.orderId(), reply.reason());
+
+                processService.fail(reply.orderId());
+                publisher.handlePaymentFailure(reply.orderId(), reply.reason());
+            }
+        }
+        catch (PaymentNotFoundException ex) {
+            publisher.handlePaymentFailure(reply.orderId(), ex.getMessage());
+        }
     }
 
     @RabbitListener(queues = RabbitMQConstants.PAYMENT_CANCEL_QUEUE)
     public void handleCancel(BookingCommand command) {
-        log.info("Payment cancel for orderId={}", command.orderId());
 
-        processService.refund(command);
+        processService.refund(command.orderId());
+        publisher.publishBalance(command, RabbitMQConstants.USER_CANCEL_KEY);
+
+        log.info("Payment cancelled ={}", command);
 
     }
-
 }

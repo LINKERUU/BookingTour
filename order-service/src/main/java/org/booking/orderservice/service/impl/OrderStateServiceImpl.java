@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
+
 @Service
 @RequiredArgsConstructor
 public class OrderStateServiceImpl implements OrderStateService {
@@ -17,35 +18,50 @@ public class OrderStateServiceImpl implements OrderStateService {
     private final OrderRepository orderRepository;
 
     @Override
-    public Order getOrder(String orderId) {
-        return orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
-    }
-
-    @Override
-    public void changeStatus(String orderId, BigDecimal amount, OrderStatus orderStatus) {
+    public Order updateOrder(String orderId, BigDecimal price, OrderStatus expectedStatus, OrderStatus newStatus) {
         Order order = getOrder(orderId);
-        order.changeAmount(amount);
-        order.changeStatus(orderStatus);
-        orderRepository.save(order);
-    }
 
-    @Override
-    public void confirm(String orderId, BigDecimal amount) {
+        if (!order.getStatus().canTransition(newStatus)) {
+            return order;
+        }
 
-        Order order = getOrder(orderId);
-        order.changeAmount(amount);
-        order.changeStatus(OrderStatus.CONFIRMED);
+        order.changeAmount(order.getAmount().add(price));
+        order.changeStatus(newStatus);
 
         orderRepository.save(order);
+
+        return order;
     }
 
     @Override
-    public void cancel(String orderId, String reason) {
+    public void updateOrderStatus(String orderId, OrderStatus newStatus) {
+
         Order order = getOrder(orderId);
+        order.changeStatus(newStatus);
+        orderRepository.save(order);
+
+    }
+
+    @Override
+    public Order cancel(String orderId, String reason) {
+        Order order = getOrder(orderId);
+
+        if (order.getStatus() == OrderStatus.CANCELLED) {
+            return order;
+        }
 
         order.changeReason(reason);
         order.changeStatus(OrderStatus.CANCELLED);
 
         orderRepository.save(order);
+
+        return order;
     }
+
+    @Override
+    public Order getOrder(String orderId) {
+        return orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
+    }
+
+
 }

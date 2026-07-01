@@ -1,4 +1,4 @@
-package org.booking.hotelinventory.messaging;
+package org.booking.authservice.messaging;
 
 import lombok.RequiredArgsConstructor;
 import org.booking.sharedlib.config.RabbitMQConstants;
@@ -10,19 +10,19 @@ import java.math.BigDecimal;
 
 @Component
 @RequiredArgsConstructor
-public class HotelReplyPublisher {
+public class UserReplyPublisher {
 
     private final RabbitTemplate rabbitTemplate;
 
-    public void handleHotelSuccess(String orderId, BigDecimal amount) {
+    public void handleBalanceSuccess(String orderId, BigDecimal amount) {
         publish(BookingReply.success(orderId, amount));
     }
 
-    public void handleHotelFailure(String orderId, String reason) {
+    public void handleBalanceFailure(String orderId, String reason) {
         publish(BookingReply.failure(orderId, reason));
     }
 
     private void publish(BookingReply reply) {
-        rabbitTemplate.convertAndSend(RabbitMQConstants.BOOKING_EXCHANGE, RabbitMQConstants.HOTEL_REPLY_KEY, reply);
+        rabbitTemplate.convertAndSend(RabbitMQConstants.BOOKING_EXCHANGE, RabbitMQConstants.USER_REPLY_KEY, reply);
     }
 }

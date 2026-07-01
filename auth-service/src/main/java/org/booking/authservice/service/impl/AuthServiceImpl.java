@@ -9,6 +9,7 @@ import org.booking.authservice.exception.custom.InvalidCredentialsException;
 import org.booking.authservice.exception.custom.UserAlreadyExistsException;
 import org.booking.authservice.mapper.AuthMapper;
 import org.booking.authservice.model.User;
+import org.booking.authservice.model.enums.Role;
 import org.booking.authservice.repository.UserRepository;
 import org.booking.authservice.service.AuthService;
 import org.booking.authservice.service.JwtService;
@@ -59,6 +60,24 @@ public class AuthServiceImpl implements AuthService {
         String token = jwtService.generateToken(user);
 
         return authMapper.toResponse(user,token);
+    }
+
+    @Override
+    public AuthResponse promoteToAdmin(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(InvalidCredentialsException::new);
+
+        if (user.getRole() == Role.ADMIN) {
+            log.info("User id={} is already an ADMIN", userId);
+            return authMapper.toResponse(user);
+        }
+
+        log.info("Promoting user id={} ('{}') to ADMIN", userId, user.getUsername());
+        user.changeRole(Role.ADMIN);
+
+        userRepository.save(user);
+
+        return authMapper.toResponse(user);
     }
 
 }

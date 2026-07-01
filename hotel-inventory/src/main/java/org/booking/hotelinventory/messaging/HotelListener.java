@@ -2,12 +2,16 @@ package org.booking.hotelinventory.messaging;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.booking.hotelinventory.exception.custom.HotelNotFoundException;
+import org.booking.hotelinventory.exception.custom.NoAvailableRoomsException;
 import org.booking.hotelinventory.service.HotelReservationService;
 import org.booking.sharedlib.config.RabbitMQConstants;
 import org.booking.sharedlib.messaging.event.BookingCommand;
-import org.booking.sharedlib.messaging.result.ReservationResult;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
 
 @Slf4j
 @Component
@@ -20,13 +24,13 @@ public class HotelListener {
     @RabbitListener(queues = RabbitMQConstants.HOTEL_COMMAND_QUEUE)
     public void handleReserve(BookingCommand command) {
 
-        ReservationResult result = reservationService.reserve(command.hotelId(), command.amount());
-
-        if (result.success()) {
-            log.info("Hotel reserve for orderId={}", command.orderId());
-            publisher.handleHotelSuccess(command, "Successfully reserved room in Hotel", result.amount());
-        } else
-            publisher.handleHotelFailure(command, result.reason());
+        try {
+            BigDecimal amount = reservationService.reserve(command.hotelId());
+            publisher.handleHotelSuccess(command.orderId(), amount);
+        }
+        catch (NoAvailableRoomsException | HotelNotFoundException | OptimisticLockingFailureException ex) {
+            publisher.handleHotelFailure(command.orderId(), ex.getMessage());
+        }
     }
 
     @RabbitListener(queues = RabbitMQConstants.HOTEL_CANCEL_QUEUE)

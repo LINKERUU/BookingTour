@@ -2,12 +2,16 @@ package org.booking.flightinventory.messaging;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.booking.flightinventory.exception.custom.FlightNotFoundException;
+import org.booking.flightinventory.exception.custom.NoAvailableSeatsException;
 import org.booking.flightinventory.service.FlightReservationService;
 import org.booking.sharedlib.config.RabbitMQConstants;
 import org.booking.sharedlib.messaging.event.BookingCommand;
-import org.booking.sharedlib.messaging.result.ReservationResult;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
 
 @Slf4j
 @Component
@@ -20,16 +24,12 @@ public class FlightListener {
     @RabbitListener(queues = RabbitMQConstants.FLIGHT_COMMAND_QUEUE)
     public void handleReserve(BookingCommand command) {
 
-        ReservationResult result = reservationService.reserve(
-                command.flightId(), command.amount()
-        );
-
-        if (result.success()) {
-            log.info("Flight reserve for orderId={}", command.orderId());
-            publisher.handleFlightSuccess(command, "Successfully reserved seat on flight", result.amount());
-        } else {
-            log.warn("Failed to reserve seat on flight, orderId={}", command.orderId());
-            publisher.handleFlightFailure(command, result.reason());
+        try {
+            BigDecimal amount = reservationService.reserve(command.flightId());
+            publisher.handleFlightSuccess(command.orderId(), amount);
+        }
+        catch (NoAvailableSeatsException | FlightNotFoundException | OptimisticLockingFailureException ex) {
+            publisher.handleFlightFailure(command.orderId(), ex.getMessage());
         }
     }
 

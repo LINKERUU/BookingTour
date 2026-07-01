@@ -33,7 +33,8 @@ public class SecurityConfig {
                 .sessionManagement(s ->
                         s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().authenticated())
+                      .requestMatchers("/actuator/**").permitAll()
+                      .anyRequest().authenticated())
                 .addFilterBefore(headerFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
