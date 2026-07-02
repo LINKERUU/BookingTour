@@ -9,6 +9,8 @@ import org.booking.orderservice.service.OrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
@@ -41,5 +43,11 @@ public class OrderController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteOrderById(@PathVariable String id) {
         orderService.deleteOrder(id);
+    }
+
+    @GetMapping("/my-orders")
+    @ResponseStatus(HttpStatus.OK)
+    public List<OrderResponse> getMyOrders(@RequestHeader("X-User-Id") String userId) {
+        return orderService.getByUserId(userId);
     }
 }

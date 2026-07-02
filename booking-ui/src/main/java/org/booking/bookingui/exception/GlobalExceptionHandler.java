@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import tools.jackson.databind.ObjectMapper;
+
+import java.util.Map;
 
 @Slf4j
 @ControllerAdvice
@@ -27,13 +30,24 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RestClientResponseException.class)
     public String handleRestClient(
+            RestClientResponseException ex,
             RedirectAttributes redirectAttributes,
             HttpServletRequest request
     ) {
-        redirectAttributes.addFlashAttribute(
-                "error",
-                "Ошибка обращения к внешнему сервису"
-        );
+        String errorMessage = "Ошибка обращения к внешнему сервису";
+
+        String responseBody = ex.getResponseBodyAsString();
+        if (!responseBody.isBlank()) {
+
+            ObjectMapper mapper = new ObjectMapper();
+            Map<?, ?> errorMap = mapper.readValue(responseBody, Map.class);
+
+            if (errorMap.containsKey("message")) {
+                errorMessage = (String) errorMap.get("message");
+            }
+        }
+
+        redirectAttributes.addFlashAttribute("error", errorMessage);
 
         return redirectBack(request);
     }

@@ -10,4 +10,5 @@ public interface BookingService {
     OrderResponse createOrder(OrderRequest request);
     BookingDetailsDto getBookingDetails(String id);
     OrderResponse getOrderStatus(String id);
+    List<OrderResponse> getUserOrders();
 }

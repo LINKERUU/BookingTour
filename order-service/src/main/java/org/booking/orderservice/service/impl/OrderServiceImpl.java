@@ -13,6 +13,7 @@ import org.booking.orderservice.repository.OrderRepository;
 import org.booking.orderservice.service.OrderService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -41,6 +42,13 @@ public class OrderServiceImpl implements OrderService {
         log.info("Get order by ID: {}", id);
 
         return orderMapper.toResponse(getExistingOrder(id));
+    }
+
+    public List<OrderResponse> getByUserId(String userId) {
+        return orderRepository.findByUserIdOrderByCreatedAtDesc(userId)
+                .stream()
+                .map(orderMapper::toResponse)
+                .toList();
     }
 
     @Override
