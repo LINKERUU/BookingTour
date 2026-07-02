@@ -1,11 +1,14 @@
 package org.booking.bookingui.controller;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.booking.bookingui.dto.*;
 import org.booking.bookingui.service.BookingService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @Controller
@@ -33,6 +36,17 @@ public class BookingController {
     public OrderResponse createOrder(
             @RequestBody OrderRequest request) {
         return bookingService.createOrder(request);
+    }
+
+    @GetMapping("/my-orders")
+    public String orders(Model model, HttpSession session) {
+
+        List<OrderResponse> orders = bookingService.getUserOrders();
+
+        model.addAttribute("orders", orders);
+        model.addAttribute("email", session.getAttribute("email"));
+
+        return "orders";
     }
 
     @GetMapping("/composition/{id}")

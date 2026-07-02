@@ -10,7 +10,7 @@ public record OrderInfo(
         String hotelId,
         String status,
         BigDecimal amount,
-        LocalDateTime createdAt
-
+        LocalDateTime createdAt,
+        String reason
 ) {
 }

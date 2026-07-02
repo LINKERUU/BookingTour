@@ -17,12 +17,14 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<FlightDto> getFlights() {
-        return utilsService.getListRequest("/api/flights", new ParameterizedTypeReference<>() {});
+        return utilsService.getListRequest("/api/flights", new ParameterizedTypeReference<>() {
+        });
     }
 
     @Override
     public List<HotelDto> getHotels() {
-        return utilsService.getListRequest("/api/hotels", new ParameterizedTypeReference<>() {});
+        return utilsService.getListRequest("/api/hotels", new ParameterizedTypeReference<>() {
+        });
     }
 
     @Override
@@ -38,6 +40,12 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public OrderResponse getOrderStatus(String id) {
         return utilsService.getRequest("/api/orders/{id}", id, OrderResponse.class);
+    }
+
+    @Override
+    public List<OrderResponse> getUserOrders() {
+        return utilsService.getListRequest("/api/orders/my-orders", new ParameterizedTypeReference<>() {});
+
     }
 
 
